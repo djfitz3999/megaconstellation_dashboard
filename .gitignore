@@ -1,0 +1,13 @@
+*~
+*.txt
+*.ppt
+*.doc
+*.docx
+*.csv
+*.asv
+*.out
+*.sav
+*.fig
+*.mat
+*.gz
+Outputs/
