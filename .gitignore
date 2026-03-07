@@ -10,4 +10,4 @@
 *.fig
 *.mat
 *.gz
-Outputs/
+*.json
