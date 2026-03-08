@@ -118,9 +118,7 @@ for name, url in constellations.items():
 
 # Prepare the final data structure with a timestamp
 output = {
-    # .now(timezone.utc) creates a "timezone-aware" object
-    # "last_updated_utc": datetime.now(timezone.utc).isoformat(),
-    "last_updated_utc": datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %I:%M:%S %p %Z"),
+    "last_updated_utc": datetime.now(timezone.utc).isoformat(),
     "constellations": results
 }
 
