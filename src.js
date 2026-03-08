@@ -1,7 +1,7 @@
 async function loadData() {
 
     // const response = await fetch("data/satellite_counts.json");
-    const response = await fetch("https://raw.githubusercontent.com/djfitz3999/megaconstellation_dashboard/data/data/satellite_counts.json");
+    const response = await fetch("https://raw.githubusercontent.com/djfitz3999/megaconstellation_dashboard/data/data/satellite_counts.json?cache=" + Date.now());
 
     const data = await response.json();
 
@@ -13,6 +13,9 @@ async function loadData() {
 
     animateCounter("qianfan-count",
         data.constellations.Qianfan.total_in_orbit);
+
+    animateCounter("guowang-count",
+        data.constellations.Guowang.total_in_orbit);
 
     document.getElementById("updated").innerText =
         "Last updated: " + data.last_updated_utc;
