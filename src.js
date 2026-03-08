@@ -97,7 +97,14 @@ function updateData() {
 
 }
 
-document.getElementById('update-btn').onclick = updateData;
+const isCreator = window.location.search.includes("admin=true")
+if (!isCreator) {
+    document.getElementById("update-btn").style.display = "none"
+}
+else
+{
+    document.getElementById('update-btn').onclick = updateData;
+}
 
 loadData();
 
