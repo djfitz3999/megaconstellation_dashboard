@@ -1,17 +1,21 @@
 body {
-  background: radial-gradient(ellipse at bottom, #0b0c1a 0%, #000000 100%);
-  color: white;
-  font-family: "Courier New", monospace;
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    background: radial-gradient(ellipse at bottom, #0b0c1a 0%, #000000 100%);
+    color: white;
+    font-family: "Courier New", monospace;
+    margin: 0;
+    /* FIX: Allow scrolling for 4 panels without losing center alignment */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    padding: 60px 0; /* Adds space so the author line isn't touching the floor */
 }
 
 .container {
-  text-align: center;
-  max-width: 800px;
+    text-align: center; /* This ensures all text/buttons stay centered */
+    max-width: 800px;
+    position: relative;
+    z-index: 1;
 }
 
 h1 {
@@ -20,7 +24,7 @@ h1 {
 }
 
 .panel {
-  margin-bottom: 40px;
+    margin-bottom: 30px; 
 }
 
 h2 {
@@ -48,15 +52,13 @@ h2 {
 }
 
 button {
-  background: transparent;
-  border: 2px solid #00ffc3;
-  color: #00ffc3;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-family: inherit; /* Keeps the Courier font */
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-block; /* Ensures margins work correctly */
+    background: transparent;
+    border: 2px solid #00ffc3;
+    color: #00ffc3;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 button:hover {
@@ -101,10 +103,12 @@ a:hover {
 }
 
 #starfield {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Send to back */
 }
 
 body {
