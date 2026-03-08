@@ -1,7 +1,7 @@
 async function loadData() {
 
     // const response = await fetch("data/satellite_counts.json");
-    const response = await fetch("https://raw.githubusercontent.com/djfitz3999/megaconstellation_dashboard/data/data/satellite_counts.json");
+    const response = await fetch("https://raw.githubusercontent.com/djfitz3999/megaconstellation_dashboard/data/data/satellite_counts.json?cache=" + Date.now());
 
     const data = await response.json();
 
