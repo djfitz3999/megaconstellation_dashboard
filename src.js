@@ -17,6 +17,29 @@ async function loadData() {
     document.getElementById("updated").innerText =
         "Last updated: " + data.last_updated_utc;
 
+    updateTimers(data.last_updated_utc);
+
+}
+
+function updateTimers(timestamp) {
+    const last = new Date(timestamp);
+    const now = new Date();
+    const cadenceHours = 72;
+    const next = new Date(last.getTime() + cadenceHours * 3600000);
+    
+    let diff = next - now;
+
+    if (diff <= 0) {
+        document.getElementById('nextUpdate').textContent = "Update due now";
+        return;
+    }
+
+    // Math conversions
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    document.getElementById('nextUpdate').textContent = `${days}d ${hours}h ${mins}m`;
 }
 
 function animateCounter(id, target) {

@@ -1,84 +1,101 @@
 body {
-
-background: radial-gradient(ellipse at bottom, #0b0c1a 0%, #000000 100%);
-color: white;
-font-family: "Courier New", monospace;
-
-margin: 0;
-height: 100vh;
-
-display: flex;
-justify-content: center;
-align-items: center;
-
+  background: radial-gradient(ellipse at bottom, #0b0c1a 0%, #000000 100%);
+  color: white;
+  font-family: "Courier New", monospace;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .container {
-
-text-align: center;
-max-width: 800px;
-
+  text-align: center;
+  max-width: 800px;
 }
 
 h1 {
-
-margin-bottom: 40px;
-font-size: 40px;
-
+  margin-bottom: 40px;
+  font-size: 50px;
 }
 
 .panel {
-
-margin-bottom: 40px;
-
+  margin-bottom: 40px;
 }
 
 h2 {
-
-color: #9aaaff;
-letter-spacing: 2px;
-
+  color: #9aaaff;
+  letter-spacing: 2px;
+  font-size: 36px;      /* Increased from default */
+  margin-bottom: 10px; /* Space between label and number */
+  text-transform: uppercase; /* Optional: makes it look more like a "system" */
 }
 
 .counter {
+  font-size: 80px;
+  color: #00ffc3;
+  text-shadow: 0 0 20px #00ffc3;
+  margin-bottom: 20px; /* Added space below the big numbers */
+}
 
-font-size: 80px;
-color: #00ffc3;
-text-shadow: 0 0 20px #00ffc3;
-
+/* Spacing for the timestamp section */
+#update-info {
+  margin-top: 25px;    /* Space between the last counter and text */
+  margin-bottom: 25px; /* Space between text and button */
+  line-height: 1.8;    /* Spacing between the two lines of text */
+  font-size: 14px;
+  color: #888;
 }
 
 button {
-
-background: transparent;
-border: 2px solid #00ffc3;
-color: #00ffc3;
-
-padding: 10px 20px;
-
-font-size: 16px;
-
-cursor: pointer;
-
+  background: transparent;
+  border: 2px solid #00ffc3;
+  color: #00ffc3;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-family: inherit; /* Keeps the Courier font */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block; /* Ensures margins work correctly */
 }
 
 button:hover {
-
-background: #00ffc3;
-color: black;
-
+  background: #00ffc3;
+  color: black;
+  box-shadow: 0 0 15px #00ffc3; /* Added a glow effect to match counters */
 }
 
 .source {
-
-margin-top: 30px;
-font-size: 14px;
-color: gray;
-
+  margin-top: 40px; /* More separation from the button */
+  font-size: 14px;
+  color: gray;
 }
 
 a {
+  color: #9aaaff;
+  text-decoration: none;
+}
 
-color: #9aaaff;
+a:hover {
+  text-decoration: underline;
+}
 
+.author {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #666; /* Subtler gray for the name */
+  line-height: 1.6;
+}
+
+.email-link {
+  color: #9aaaff; /* Matches your link theme */
+  text-decoration: none;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.email-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+  text-shadow: 0 0 8px #9aaaff;
 }
