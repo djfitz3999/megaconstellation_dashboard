@@ -17,10 +17,27 @@ async function loadData() {
     animateCounter("guowang-count",
         data.constellations.Guowang.total_in_orbit);
 
-    document.getElementById("updated").innerText =
-        "Last updated: " + data.last_updated_utc;
+    document.getElementById("lastUpdate").textContent =
+       formatEasternTime(data.last_updated_utc);
 
     updateTimers(data.last_updated_utc);
+
+}
+
+function formatEasternTime(timestamp) {
+
+  const date = new Date(timestamp)
+
+  return date.toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short"
+  })
 
 }
 
