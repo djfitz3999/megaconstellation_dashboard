@@ -1,7 +1,7 @@
 async function loadData() {
 
     // const response = await fetch("data/satellite_counts.json");
-    const response = await fetch("https://raw.githubusercontent.com/djfitz3999/megaconstellation_dashboard/data/data/satellite_counts.json?cache=" + Date.now())
+    const response = await fetch("https://raw.githubusercontent.com/djfitz3999/megaconstellation_dashboard/data/data/satellite_counts.json");
 
     const data = await response.json();
 
@@ -45,10 +45,15 @@ function animateCounter(id, target) {
 
 }
 
-document.getElementById("update-btn").onclick = function() {
+function updateData() {
 
-    alert("Run your Python update script to refresh the data.");
+  window.open(
+    "https://github.com/djfitz3999/megaconstellation_dashboard/actions/workflows/update_counts.yml",
+    "_blank"
+  );
 
 }
+
+document.getElementById('update-btn').onclick = updateData;
 
 loadData();

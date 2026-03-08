@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas requests beautifulsoup4 lxml json os
+          pip install pandas requests beautifulsoup4 lxml
 
       - name: Run scraper
         run: |
