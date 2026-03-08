@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime, timezone
 from io import StringIO
+from zoneinfo import ZoneInfo
 
 # Helper function to flatten multi-level column names in a DataFrame
 def flatten_columns(df):
@@ -117,12 +118,14 @@ for name, url in constellations.items():
 # Prepare the final data structure with a timestamp
 output = {
     # .now(timezone.utc) creates a "timezone-aware" object
-    "last_updated_utc": datetime.now(timezone.utc).isoformat(),
+    # "last_updated_utc": datetime.now(timezone.utc).isoformat(),
+    "last_updated_utc": datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %I:%M:%S %p %Z"),
     "constellations": results
 }
 
-# Ensure the output directory exists before writing
-output_path = "../data/satellite_counts.json"
+# Output directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+output_path = os.path.join(BASE_DIR, "..", "data", "satellite_counts.json")
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 # Write the data to a JSON file with pretty-printing
@@ -130,4 +133,4 @@ with open(output_path, "w") as f:
     json.dump(output, f, indent=2)
 
 # Print a message indicating where the JSON file has been written
-print(f"JSON file written to {output_path}")
+print(f"JSON file written to {os.path.abspath(output_path)}")
