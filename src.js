@@ -14,6 +14,9 @@ async function loadData() {
     animateCounter("qianfan-count",
         data.constellations.Qianfan.total_in_orbit);
 
+    animateCounter("guowang-count",
+        data.constellations.Guowang.total_in_orbit);
+
     document.getElementById("updated").innerText =
         "Last updated: " + data.last_updated_utc;
 
