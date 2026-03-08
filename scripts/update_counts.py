@@ -103,6 +103,7 @@ constellations = {
     "Starlink": "https://planet4589.org/space/con/star/stats.html",
     "Kuiper": "https://planet4589.org/space/con/kp1/stats.html",
     "Qianfan": "https://planet4589.org/space/con/qf/stats.html",
+    "Guowang": "https://planet4589.org/space/con/xw/stats.html"
 }
 
 results = {}
