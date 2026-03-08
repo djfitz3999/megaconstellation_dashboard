@@ -1,0 +1,45 @@
+name: Update Satellite Counts
+
+on:
+
+  schedule:
+    - cron: "0 * */3 * *"
+
+  workflow_dispatch:
+
+jobs:
+
+  update-data:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests beautifulsoup4 lxml
+
+      - name: Run scraper
+        run: |
+          python scripts/update_counts.py
+
+      - name: Commit updated JSON
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git add data/satellite_counts.json
+
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update satellite counts"
+
+          git push origin data
