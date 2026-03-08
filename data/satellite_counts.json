@@ -1,5 +1,5 @@
 {
-  "last_updated_utc": "2026-03-07 08:21:17 PM EST",
+  "last_updated_utc": "2026-03-07 10:28:40 PM EST",
   "constellations": {
     "Starlink": {
       "total_launched": 11463,
@@ -12,6 +12,10 @@
     "Qianfan": {
       "total_launched": 108,
       "total_in_orbit": 108
+    },
+    "Guowang": {
+      "total_launched": 183,
+      "total_in_orbit": 178
     }
   }
 }
