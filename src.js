@@ -44,7 +44,7 @@ function formatEasternTime(timestamp) {
 function updateTimers(timestamp) {
     const last = new Date(timestamp);
     const now = new Date();
-    const cadenceHours = 72;
+    const cadenceHours = 24;
     const next = new Date(last.getTime() + cadenceHours * 3600000);
     
     let diff = next - now;
