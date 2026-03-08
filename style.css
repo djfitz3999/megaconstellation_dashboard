@@ -99,3 +99,15 @@ a:hover {
   text-decoration: underline;
   text-shadow: 0 0 8px #9aaaff;
 }
+
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+body {
+  background: black;
+  color: white;
+}
