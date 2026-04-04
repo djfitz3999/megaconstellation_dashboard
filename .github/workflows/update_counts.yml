@@ -29,9 +29,12 @@ jobs:
         run: |
           pip install pandas requests beautifulsoup4 lxml
 
-      - name: Run scraper
+      - name: Run update from Space-Track
+        env:
+          SPACETRACK_USER: ${{ secrets.SPACETRACK_USER }}
+          SPACETRACK_PASS: ${{ secrets.SPACETRACK_PASS }}
         run: |
-          python scripts/update_counts.py
+          python scripts/update_from_space_track.py
 
       - name: Commit updated JSON
         run: |

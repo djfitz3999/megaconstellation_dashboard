@@ -1,21 +1,47 @@
 {
-  "last_updated_utc": "2026-03-08T18:12:15.565455+00:00",
+  "last_updated_utc": "2026-04-04T20:45:49.085710+00:00",
   "constellations": {
     "Starlink": {
-      "total_launched": 11463,
-      "total_in_orbit": 9926
+      "total_in_orbit": 10121
     },
     "Kuiper": {
-      "total_launched": 214,
       "total_in_orbit": 210
     },
     "Qianfan": {
-      "total_launched": 108,
       "total_in_orbit": 108
     },
     "Guowang": {
-      "total_launched": 183,
-      "total_in_orbit": 178
+      "total_in_orbit": 154
+    },
+    "OneWeb": {
+      "total_in_orbit": 654
+    },
+    "Iridium": {
+      "total_in_orbit": 80
+    },
+    "Globalstar": {
+      "total_in_orbit": 7
+    },
+    "Orbcomm": {
+      "total_in_orbit": 17
+    },
+    "Spire Global": {
+      "total_in_orbit": 82
+    },
+    "Planet Labs": {
+      "total_in_orbit": 140
+    },
+    "Starshield": {
+      "total_in_orbit": 7
+    },
+    "Proliferated Warfighter Space Architecture (PWSA)": {
+      "total_in_orbit": 69
+    },
+    "Yaogan": {
+      "total_in_orbit": 145
+    },
+    "Jilin": {
+      "total_in_orbit": 40
     }
   }
 }
