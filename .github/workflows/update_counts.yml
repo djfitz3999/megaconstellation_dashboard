@@ -43,6 +43,6 @@ jobs:
 
           git add data/satellite_counts.json
 
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update satellite counts"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update satellite counts $(TZ='America/New_York' date)"
 
           git push origin data
