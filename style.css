@@ -42,6 +42,13 @@ h2 {
   margin-bottom: 20px; /* Added space below the big numbers */
 }
 
+.meta {
+    font-size:18px;
+    opacity:0.8;
+    margin-top:6px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
 /* Spacing for the timestamp section */
 #update-info {
   margin-top: 25px;    /* Space between the last counter and text */
