@@ -103,7 +103,18 @@ constellations = {
     "Starlink": "https://planet4589.org/space/con/star/stats.html",
     "Kuiper": "https://planet4589.org/space/con/kp/stats.html",
     "Qianfan": "https://planet4589.org/space/con/qf/stats.html",
-    "Guowang": "https://planet4589.org/space/con/xw/stats.html"
+    "Guowang": "https://planet4589.org/space/con/xw/stats.html",
+    "Starshield": "https://planet4589.org/space/con/stsh/stats.html",
+    "PWSA": "https://planet4589.org/space/con/pwsa/stats.html",
+    "Jilin": "https://planet4589.org/space/con/jil/stats.html",
+    "OneWeb": "https://planet4589.org/space/con/ow/stats.html",
+    "Spire": "https://planet4589.org/space/con/spr/stats.html",
+    "Planet": "https://planet4589.org/space/con/pln/stats.html",
+    "Iridium": "https://planet4589.org/space/con/iri/stats.html",
+    "Globalstar": "https://planet4589.org/space/con/gbl/stats.html",
+    "Orbcomm": "https://planet4589.org/space/con/oco/stats.html",
+    "Strela1M": "https://planet4589.org/space/con/s1m/stats.html",
+    "Strela3": "https://planet4589.org/space/con/st3/stats.html",
 }
 
 results = {}
