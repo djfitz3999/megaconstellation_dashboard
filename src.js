@@ -17,6 +17,39 @@ async function loadData() {
     animateCounter("guowang-count",
         data.constellations.Guowang.total_in_orbit);
 
+    animateCounter("starshield-count",
+        data.constellations.Starshield.total_in_orbit);
+
+    animateCounter("pwsa-count",
+        data.constellations.PWSA.total_in_orbit);
+
+    animateCounter("jilin-count",
+        data.constellations.Jilin.total_in_orbit);
+
+    animateCounter("oneweb-count",
+        data.constellations.OneWeb.total_in_orbit);
+
+    animateCounter("spire-count",
+        data.constellations.Spire.total_in_orbit);
+
+    animateCounter("planet-count",
+        data.constellations.Planet.total_in_orbit);
+
+    animateCounter("iridium-count",
+        data.constellations.Iridium.total_in_orbit);
+
+    animateCounter("globalstar-count",
+        data.constellations.Globalstar.total_in_orbit);
+
+    animateCounter("orbcomm-count",
+        data.constellations.Orbcomm.total_in_orbit);
+
+    animateCounter("strela1m-count",
+        data.constellations.Strela1M.total_in_orbit);
+
+    animateCounter("strela3-count",
+        data.constellations.Strela3.total_in_orbit);
+
     document.getElementById("lastUpdate").textContent =
        formatEasternTime(data.last_updated_utc);
 
