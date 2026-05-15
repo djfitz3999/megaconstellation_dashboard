@@ -1,25 +1,25 @@
 {
-  "last_updated_utc": "2026-05-14T06:45:55.446057+00:00",
+  "last_updated_utc": "2026-05-15T06:55:20.356434+00:00",
   "constellations": {
     "Starlink": {
       "total_launched": 11979,
-      "total_in_orbit": 10375
+      "total_in_orbit": 10370
     },
     "Kuiper": {
       "total_launched": 304,
       "total_in_orbit": 300
     },
     "Qianfan": {
-      "total_launched": 126,
-      "total_in_orbit": 126
+      "total_launched": 144,
+      "total_in_orbit": 144
     },
     "Guowang": {
       "total_launched": 202,
       "total_in_orbit": 197
     },
     "Starshield": {
-      "total_launched": 212,
-      "total_in_orbit": 208
+      "total_launched": 235,
+      "total_in_orbit": 231
     },
     "PWSA": {
       "total_launched": 69,
@@ -27,7 +27,7 @@
     },
     "Jilin": {
       "total_launched": 181,
-      "total_in_orbit": 97
+      "total_in_orbit": 85
     },
     "OneWeb": {
       "total_launched": 660,
@@ -39,7 +39,7 @@
     },
     "Planet": {
       "total_launched": 709,
-      "total_in_orbit": 145
+      "total_in_orbit": 144
     },
     "Iridium": {
       "total_launched": 177,
