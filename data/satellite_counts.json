@@ -1,5 +1,5 @@
 {
-  "last_updated_utc": "2026-05-15T06:55:20.356434+00:00",
+  "last_updated_utc": "2026-05-16T06:20:47.276054+00:00",
   "constellations": {
     "Starlink": {
       "total_launched": 11979,
@@ -26,8 +26,8 @@
       "total_in_orbit": 69
     },
     "Jilin": {
-      "total_launched": 181,
-      "total_in_orbit": 85
+      "total_launched": 182,
+      "total_in_orbit": 86
     },
     "OneWeb": {
       "total_launched": 660,
