@@ -1,25 +1,25 @@
 {
-  "last_updated_utc": "2026-05-24T06:58:43.101305+00:00",
+  "last_updated_utc": "2026-05-25T08:20:24.106019+00:00",
   "constellations": {
     "Starlink": {
-      "total_launched": 11979,
-      "total_in_orbit": 10370
+      "total_launched": 12032,
+      "total_in_orbit": 10413
     },
     "Kuiper": {
       "total_launched": 304,
       "total_in_orbit": 300
     },
     "Qianfan": {
-      "total_launched": 144,
-      "total_in_orbit": 144
+      "total_launched": 162,
+      "total_in_orbit": 162
     },
     "Guowang": {
       "total_launched": 202,
       "total_in_orbit": 197
     },
     "Starshield": {
-      "total_launched": 235,
-      "total_in_orbit": 231
+      "total_launched": 234,
+      "total_in_orbit": 230
     },
     "PWSA": {
       "total_launched": 69,
