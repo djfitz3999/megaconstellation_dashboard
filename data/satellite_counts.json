@@ -1,9 +1,9 @@
 {
-  "last_updated_utc": "2026-06-20T07:49:55.885317+00:00",
+  "last_updated_utc": "2026-06-21T08:31:33.669855+00:00",
   "constellations": {
     "Starlink": {
       "total_launched": 12318,
-      "total_in_orbit": 10666
+      "total_in_orbit": 10663
     },
     "Kuiper": {
       "total_launched": 369,
@@ -18,8 +18,8 @@
       "total_in_orbit": 210
     },
     "Starshield": {
-      "total_launched": 236,
-      "total_in_orbit": 232
+      "total_launched": 245,
+      "total_in_orbit": 241
     },
     "PWSA": {
       "total_launched": 69,
