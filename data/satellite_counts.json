@@ -1,9 +1,9 @@
 {
-  "last_updated_utc": "2026-07-09T07:35:58.215223+00:00",
+  "last_updated_utc": "2026-07-10T07:33:36.831235+00:00",
   "constellations": {
     "Starlink": {
-      "total_launched": 12443,
-      "total_in_orbit": 10759
+      "total_launched": 12472,
+      "total_in_orbit": 10777
     },
     "Kuiper": {
       "total_launched": 398,
@@ -27,19 +27,19 @@
     },
     "Jilin": {
       "total_launched": 190,
-      "total_in_orbit": 89
+      "total_in_orbit": 87
     },
     "OneWeb": {
       "total_launched": 660,
       "total_in_orbit": 654
     },
     "Spire": {
-      "total_launched": 224,
-      "total_in_orbit": 66
+      "total_launched": 229,
+      "total_in_orbit": 70
     },
     "Planet": {
-      "total_launched": 709,
-      "total_in_orbit": 143
+      "total_launched": 710,
+      "total_in_orbit": 141
     },
     "Iridium": {
       "total_launched": 177,
