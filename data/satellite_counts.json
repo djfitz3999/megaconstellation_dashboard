@@ -1,9 +1,9 @@
 {
-  "last_updated_utc": "2026-10-01T10:43:51.067385+00:00",
+  "last_updated_utc": "2026-10-02T10:18:54.701110+00:00",
   "constellations": {
     "Starlink": {
-      "total_launched": 12962,
-      "total_in_orbit": 11133
+      "total_launched": 12988,
+      "total_in_orbit": 11157
     },
     "Kuiper": {
       "total_launched": 398,
@@ -38,8 +38,8 @@
       "total_in_orbit": 67
     },
     "Planet": {
-      "total_launched": 710,
-      "total_in_orbit": 133
+      "total_launched": 713,
+      "total_in_orbit": 136
     },
     "Iridium": {
       "total_launched": 177,
