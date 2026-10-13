@@ -1,9 +1,9 @@
 {
-  "last_updated_utc": "2026-10-12T11:40:17.834077+00:00",
+  "last_updated_utc": "2026-10-13T11:25:43.146723+00:00",
   "constellations": {
     "Starlink": {
-      "total_launched": 12988,
-      "total_in_orbit": 11131
+      "total_launched": 13015,
+      "total_in_orbit": 11156
     },
     "Kuiper": {
       "total_launched": 398,
