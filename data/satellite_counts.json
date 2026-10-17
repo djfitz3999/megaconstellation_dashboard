@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "last_updated_utc": "2026-10-17T08:16:41.672219+00:00",
+=======
+  "last_updated_utc": "2026-10-17T22:43:41.126617+00:00",
+>>>>>>> main
   "constellations": {
     "Starlink": {
       "total_launched": 13015,
