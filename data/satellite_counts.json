@@ -1,9 +1,9 @@
 {
-  "last_updated_utc": "2026-11-08T11:02:55.798185+00:00",
+  "last_updated_utc": "2026-11-09T12:32:31.044485+00:00",
   "constellations": {
     "Starlink": {
       "total_launched": 13096,
-      "total_in_orbit": 11207
+      "total_in_orbit": 11204
     },
     "Kuiper": {
       "total_launched": 398,
@@ -14,8 +14,8 @@
       "total_in_orbit": 276
     },
     "Guowang": {
-      "total_launched": 270,
-      "total_in_orbit": 265
+      "total_launched": 279,
+      "total_in_orbit": 274
     },
     "Starshield": {
       "total_launched": 245,
