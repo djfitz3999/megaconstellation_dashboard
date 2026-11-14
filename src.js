@@ -60,6 +60,7 @@ let configs = [
     },
     {
         name: "AmazonLeo",
+        leg_name: "Amazon Leo",
         color: 0xffb347,
         shells: [
             {
@@ -189,6 +190,52 @@ function calculateNodalPrecessionRate(altitudeKm, inclinationDeg) {
 
     // Convert physical radians/second into radians/frame
     return nodalRate * SIM_SECONDS_PER_FRAME;
+}
+
+// =============================
+// VISUALIZATION LEGEND
+// =============================
+
+function renderConstellationLegend() {
+
+    const legend = document.getElementById("constellation-legend");
+
+    if (!legend) {
+        console.warn("Constellation legend element not found.");
+        return;
+    }
+
+    // Build one legend entry for each constellation in configs
+    const legendItems = configs.map(config => {
+
+        // Convert the numeric Three.js hex color into a CSS hex string
+        const colorHex = `#${config.color.toString(16).padStart(6, "0")}`;
+        const legName = config.leg_name || config.name;
+
+        return `
+            <div class="legend-item">
+                <span
+                    class="legend-color"
+                    style="background-color: ${colorHex}; color: ${colorHex};"
+                ></span>
+                <span class="legend-name">${legName}</span>
+            </div>
+        `;
+    }).join("");
+
+    legend.innerHTML = `
+        <div class="legend-title">Physics-Based Visualization</div>
+
+        <div class="legend-caption">
+            Physics-based visualization of major mega-constellations modeled
+            on real orbital planes and inclinations, with satellite sizes, 
+            altitudes, and speeds scaled for visual clarity.
+        </div>
+
+        <div class="legend-items">
+            ${legendItems}
+        </div>
+    `;
 }
 
 // =============================
@@ -841,6 +888,7 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+renderConstellationLegend();
 animate();
 loadData().catch(error => {
     console.error("Error loading satellite data:", error);
