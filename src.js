@@ -1,3 +1,5 @@
+/* To debug in Chrome, hit F12 or Ctrl+Shift+J to see the console output in browser */
+
 let constellationCounts = null;
 let earthRadius = 120;
 let satSize     = 2;
@@ -5,35 +7,121 @@ let configs = [
     {
         name: "Starlink",
         color: 0x4da6ff,
-        visualRadius: 120,
-        altitudeKm: 550,
-        inclinationDeg: 53,
-        planes: 72
+        shells: [
+            {
+                name: "Starlink_G1_Group1",
+                planes: 72,
+                altitudeKm: 550,
+                inclinationDeg: 53,
+                percent: 8,
+                visualRadius: 125
+            },
+            {
+                name: "Starlink_G1_Group2",
+                planes: 36,
+                altitudeKm: 572,
+                inclinationDeg: 70,
+                percent: 7,
+                visualRadius: 127
+            },
+            {
+                name: "Starlink_G1_Group3",
+                planes: 6,
+                altitudeKm: 560,
+                inclinationDeg: 97.6,
+                percent: 5,
+                visualRadius: 126
+            },
+            {
+                name: "Starlink_G1_Group4",
+                planes: 72,
+                altitudeKm: 547,
+                inclinationDeg: 53,
+                percent: 15,
+                visualRadius: 124
+            },
+            {
+                name: "Starlink_G2A_Group6",
+                planes: 56,
+                altitudeKm: 483,
+                inclinationDeg: 43,
+                percent: 35,
+                visualRadius: 122
+            },
+            {
+                name: "Starlink_G2A_Group7",
+                planes: 72,
+                altitudeKm: 475,
+                inclinationDeg: 53,
+                percent: 30,
+                visualRadius: 120
+            }
+        ]
     },
     {
         name: "AmazonLeo",
         color: 0xffb347,
-        visualRadius: 126,
-        altitudeKm: 629.5,
-        inclinationDeg: 51.9,
-        planes: 24
-    },
-    {
-        name: "Qianfan",
-        color: 0xff5c5c,
-        visualRadius: 140,
-        altitudeKm: 1069,
-        inclinationDeg: 89,
-        planes: 16
+        shells: [
+            {
+                name: "Kuiper_KP1-C",
+                percent: 100,
+                altitudeKm: 629.5,
+                inclinationDeg: 51.9,
+                planes: 24,
+                visualRadius: 126
+            }
+        ]
     },
     {
         name: "Guowang",
+        color: 0xff5c5c,
+        shells: [
+            {
+                name: "Guowang_Nominal_86inc",
+                percent: 30,
+                altitudeKm: 1168,
+                inclinationDeg: 86.5,
+                planes: 16,
+                visualRadius: 145
+            },
+            {
+                name: "Guowang_Nominal_50inc",
+                percent: 70,
+                altitudeKm: 1149,
+                inclinationDeg: 50,
+                planes: 16,
+                visualRadius: 145
+            }
+        ]
+    },
+    {
+        name: "Qianfan",
+        color: 0xff00ff,
+        shells: [
+            {
+                name: "Qianfan_Q1",
+                percent: 100,
+                altitudeKm: 1069,
+                inclinationDeg: 89,
+                planes: 16,
+                visualRadius: 140
+            }
+        ]
+    },
+    {
+        name: "OneWeb",
         color: 0x5cff9d,
-        visualRadius: 145,
-        altitudeKm: 1110,
-        inclinationDeg: 86.5,
-        planes: 16
-    }
+        shells: [
+            {
+                name: "OneWeb_Nominal",
+                percent: 100,
+                altitudeKm: 1200,
+                inclinationDeg: 87.9,
+                planes: 24,
+                visualRadius: 147
+            }
+        ]
+    },
 ];
 
 // =============================
@@ -340,7 +428,7 @@ renderer.setClearColor(0x000000, 0);
 const textureLoader = new THREE.TextureLoader()
 
 const earthDay = textureLoader.load("./textures/nasa_blue_marble.jpg")
-const earthNight = textureLoader.load("./textures/nasa_blue_marble_night.png")
+const earthNight = textureLoader.load("./textures/nasa_blue_marble_night.jpg")
 
 const earthGeometry = new THREE.SphereGeometry(earthRadius, earthRadius, earthRadius)
 
@@ -394,7 +482,7 @@ resizeScene()
 // LIGHTING
 // =============================
 
-// sunlight
+// Sunlight
 const sunLight = new THREE.DirectionalLight(0xffffff, 1.2)
 sunLight.position.set(200,100,100)
 
@@ -413,14 +501,25 @@ scene.add(orbitGroup)
 
 function buildConstellationOrbits() {
 
-    if (!constellationCounts) return;
+    console.log("Building constellation orbits...");
+    console.log("Satellite counts:", constellationCounts);
+    console.log("Configurations:", configs);
 
-    // Clear existing orbital populations
+    if (!constellationCounts) {
+        console.error("No constellation counts available!");
+        return;
+    }
+
+    // ---------------------------------
+    // 1. CLEAR EXISTING ORBITAL POPULATIONS
+    // ---------------------------------
+
     while (orbitGroup.children.length > 0) {
 
-        const raanGroup = orbitGroup.children[0];
+        const oldGroup = orbitGroup.children[0];
 
-        raanGroup.traverse(obj => {
+        oldGroup.traverse(obj => {
+
             obj.geometry?.dispose();
 
             if (Array.isArray(obj.material)) {
@@ -430,8 +529,15 @@ function buildConstellationOrbits() {
             }
         });
 
-        orbitGroup.remove(raanGroup);
+        orbitGroup.remove(oldGroup);
     }
+
+    // Store every orbital plane here for the animation loop
+    orbitGroup.userData.animatedPlanes = [];
+
+    // ---------------------------------
+    // 2. ITERATE THROUGH CONSTELLATIONS
+    // ---------------------------------
 
     configs.forEach(config => {
 
@@ -440,118 +546,212 @@ function buildConstellationOrbits() {
 
         if (totalSatellites <= 0) return;
 
-        const planeCount = config.planes;
+        // ---------------------------------
+        // 3. ALLOCATE SATELLITES TO SHELLS
+        // ---------------------------------
 
-        const inclination =
-            THREE.MathUtils.degToRad(config.inclinationDeg);
+        const shells = config.shells;
 
-        const periodHours =
-            calculateOrbitalPeriod(config.altitudeKm);
-
-        const orbitalRate =
-            calculateOrbitalRate(config.altitudeKm);
-
-        const nodalRate =
-            calculateNodalPrecessionRate(
-                config.altitudeKm,
-                config.inclinationDeg
+        if (!Array.isArray(shells) || shells.length === 0) {
+            console.error(
+                `${config.name}: missing or invalid shells configuration`,
+                config
             );
-
-        // Distribute satellites evenly among planes
-        const baseCount =
-            Math.floor(totalSatellites / planeCount);
-
-        const remainder =
-            totalSatellites % planeCount;
-
-        for (let p = 0; p < planeCount; p++) {
-
-            const satellitesInPlane =
-                baseCount + (p < remainder ? 1 : 0);
-
-            if (satellitesInPlane === 0) continue;
-
-            // ---------------------------------
-            // 1. RAAN GROUP
-            // ---------------------------------
-
-            const raanGroup = new THREE.Group();
-
-            const raan =
-                (2 * Math.PI * p) / planeCount;
-
-            raanGroup.rotation.y = raan;
-
-            // ---------------------------------
-            // 2. INCLINATION GROUP
-            // ---------------------------------
-
-            const inclinationGroup = new THREE.Group();
-
-            inclinationGroup.rotation.x = inclination;
-
-            // ---------------------------------
-            // 3. SATELLITE POSITIONS
-            // ---------------------------------
-
-            const positions = [];
-
-            for (let s = 0; s < satellitesInPlane; s++) {
-
-                const angle =
-                    (2 * Math.PI * s) / satellitesInPlane;
-
-                // Circular orbit in local XZ plane
-                const x =
-                    Math.cos(angle) * config.visualRadius;
-
-                const y = 0;
-
-                const z =
-                    -Math.sin(angle) * config.visualRadius;
-
-                positions.push(x, y, z);
-            }
-
-            const geometry = new THREE.BufferGeometry();
-
-            geometry.setAttribute(
-                "position",
-                new THREE.Float32BufferAttribute(positions, 3)
-            );
-
-            const material = new THREE.PointsMaterial({
-                color: config.color,
-                size: satSize,
-                sizeAttenuation: true
-            });
-
-            const satellites =
-                new THREE.Points(geometry, material);
-
-            // Build the hierarchy
-            inclinationGroup.add(satellites);
-            raanGroup.add(inclinationGroup);
-            orbitGroup.add(raanGroup);
-
-            // Save animation parameters
-            raanGroup.userData = {
-                name: config.name,
-                orbitalRate,
-                nodalRate,
-                satellites,
-                altitudeKm: config.altitudeKm,
-                periodHours
-            };
+            return;
         }
 
+        const totalPercent = shells.reduce(
+            (sum, shell) => sum + shell.percent,
+            0
+        );
+
+        if (totalPercent <= 0) {
+            console.warn(`${config.name}: invalid shell percentages`);
+            return;
+        }
+
+        if (Math.abs(totalPercent - 100) > 0.01) {
+            console.warn(
+                `${config.name}: shell percentages sum to ${totalPercent}%, not 100%. Normalizing.`
+            );
+        }
+
+        // Largest-remainder allocation:
+        // guarantees shell counts sum exactly to totalSatellites.
+
+        const allocations = shells.map(shell => {
+
+            const exactCount =
+                totalSatellites * shell.percent / totalPercent;
+
+            return {
+                shell,
+                count: Math.floor(exactCount),
+                remainder: exactCount - Math.floor(exactCount)
+            };
+        });
+
+        let remaining =
+            totalSatellites -
+            allocations.reduce((sum, item) => sum + item.count, 0);
+
+        const rankedAllocations = [...allocations].sort(
+            (a, b) => b.remainder - a.remainder
+        );
+
+        for (let i = 0; i < remaining; i++) {
+            rankedAllocations[i].count++;
+        }
+
+        // ---------------------------------
+        // 4. BUILD EACH SHELL
+        // ---------------------------------
+
+        allocations.forEach(allocation => {
+
+            const shell = allocation.shell;
+            const shellSatellites = allocation.count;
+
+            if (shellSatellites <= 0) return;
+
+            const planeCount = shell.planes;
+
+            if (!Number.isInteger(planeCount) || planeCount < 1) {
+                console.warn(
+                    `${config.name} ${shell.name}: invalid plane count`
+                );
+                return;
+            }
+
+            const inclination =
+                THREE.MathUtils.degToRad(shell.inclinationDeg);
+
+            const orbitalRate =
+                calculateOrbitalRate(shell.altitudeKm);
+
+            const nodalRate =
+                calculateNodalPrecessionRate(
+                    shell.altitudeKm,
+                    shell.inclinationDeg
+                );
+
+            // ---------------------------------
+            // 5. CREATE SHELL GROUP
+            // ---------------------------------
+
+            const shellGroup = new THREE.Group();
+
+            orbitGroup.add(shellGroup);
+
+            // Avoid empty orbital planes when there are
+            // fewer satellites than configured planes.
+            const activePlaneCount = Math.min(
+                planeCount,
+                shellSatellites
+            );
+
+            const baseCount = Math.floor(
+                shellSatellites / activePlaneCount
+            );
+
+            const remainder =
+                shellSatellites % activePlaneCount;
+
+            // ---------------------------------
+            // 6. BUILD EACH ORBITAL PLANE
+            // ---------------------------------
+
+            for (let p = 0; p < activePlaneCount; p++) {
+
+                const satellitesInPlane =
+                    baseCount + (p < remainder ? 1 : 0);
+
+                // RAAN group: distributes planes around Earth's Y axis
+                const raanGroup = new THREE.Group();
+
+                const raan =
+                    (2 * Math.PI * p) / activePlaneCount;
+
+                raanGroup.rotation.y = raan;
+
+                // Inclination group: tilts the orbital plane
+                const inclinationGroup = new THREE.Group();
+
+                inclinationGroup.rotation.x = inclination;
+
+                // ---------------------------------
+                // 7. GENERATE SATELLITE POSITIONS
+                // ---------------------------------
+
+                const positions = [];
+
+                for (let s = 0; s < satellitesInPlane; s++) {
+
+                    const angle =
+                        (2 * Math.PI * s) / satellitesInPlane;
+
+                    positions.push(
+                        Math.cos(angle) * shell.visualRadius,
+                        0,
+                        -Math.sin(angle) * shell.visualRadius
+                    );
+                }
+
+                const geometry = new THREE.BufferGeometry();
+
+                geometry.setAttribute(
+                    "position",
+                    new THREE.Float32BufferAttribute(positions, 3)
+                );
+
+                const material = new THREE.PointsMaterial({
+                    color: config.color,
+                    size: satSize,
+                    sizeAttenuation: true
+                });
+
+                const satellites = new THREE.Points(
+                    geometry,
+                    material
+                );
+
+                // ---------------------------------
+                // 8. ASSEMBLE THE GROUP HIERARCHY
+                // ---------------------------------
+
+                inclinationGroup.add(satellites);
+                raanGroup.add(inclinationGroup);
+                shellGroup.add(raanGroup);
+
+                // Save the parameters for animation
+                raanGroup.userData = {
+                    constellation: config.name,
+                    shell: shell.name,
+                    altitudeKm: shell.altitudeKm,
+                    orbitalRate,
+                    nodalRate,
+                    satellites
+                };
+
+                orbitGroup.userData.animatedPlanes.push(
+                    raanGroup
+                );
+            }
+
+            console.log(
+                `${config.name} | ${shell.name}: ` +
+                `${shellSatellites} satellites, ` +
+                `${activePlaneCount}/${planeCount} populated planes, ` +
+                `${calculateOrbitalPeriod(shell.altitudeKm).toFixed(2)} hour period`
+            );
+        });
+
         console.log(
-            `${config.name}: ${totalSatellites} satellites, ` +
-            `${planeCount} planes, ` +
-            `${periodHours.toFixed(2)} hour period`
+            `${config.name}: ${totalSatellites} total satellites`
         );
     });
 }
+
 
 const testOrbit = new THREE.Group();
 testOrbit.rotation.y = THREE.MathUtils.degToRad(90);
@@ -618,7 +818,7 @@ function animate() {
     earth.rotation.y += EARTH_ROTATION_RATE;
 
     // Update every orbital plane
-    orbitGroup.children.forEach(raanGroup => {
+    orbitGroup.userData.animatedPlanes?.forEach(raanGroup => {
 
         // Satellites orbit within their inclined plane
         raanGroup.userData.satellites.rotation.y +=
