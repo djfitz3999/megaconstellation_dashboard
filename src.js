@@ -1,5 +1,107 @@
 let constellationCounts = null;
 let earthRadius = 120;
+let satSize     = 2;
+let configs = [
+    {
+        name: "Starlink",
+        color: 0x4da6ff,
+        visualRadius: 120,
+        altitudeKm: 550,
+        inclinationDeg: 53,
+        planes: 72
+    },
+    {
+        name: "AmazonLeo",
+        color: 0xffb347,
+        visualRadius: 126,
+        altitudeKm: 629.5,
+        inclinationDeg: 51.9,
+        planes: 24
+    },
+    {
+        name: "Qianfan",
+        color: 0xff5c5c,
+        visualRadius: 140,
+        altitudeKm: 1069,
+        inclinationDeg: 89,
+        planes: 16
+    },
+    {
+        name: "Guowang",
+        color: 0x5cff9d,
+        visualRadius: 145,
+        altitudeKm: 1110,
+        inclinationDeg: 86.5,
+        planes: 16
+    }
+];
+
+// =============================
+// PHYSICS CONFIGURATION
+// =============================
+
+// Satellite speed scalar
+const SATELLITE_SPEED_SCALAR = 10;
+
+// Earth's rotation animation rate (radians/frame)
+// Preserves existing animation speed.
+const EARTH_ROTATION_RATE = 0.0006;
+
+// Physical constants (km-based units)
+const EARTH_RADIUS_KM = 6378.0;
+const EARTH_MU = 398600.4418; // km^3/s^2
+
+// Nodal precession
+const EARTH_J2 = 1.08263e-3;
+const EARTH_EQUATORIAL_RADIUS_KM = 6378.137;
+
+// Physical Earth rotation rate (rad/sec)
+const EARTH_ROTATION_RAD_PER_SEC = 7.2921159e-5;
+
+// How much simulated time passes per rendered frame
+const SIM_SECONDS_PER_FRAME =
+    EARTH_ROTATION_RATE / EARTH_ROTATION_RAD_PER_SEC;
+
+// Calculate circular orbital period
+function calculateOrbitalPeriod(altitudeKm) {
+
+    const orbitalRadius = EARTH_RADIUS_KM + altitudeKm;
+
+    const periodSeconds =
+        2 * Math.PI *
+        Math.sqrt(Math.pow(orbitalRadius, 3) / EARTH_MU);
+
+    return periodSeconds / 3600;
+}
+
+// Orbital angular rate in radians per rendered frame
+function calculateOrbitalRate(altitudeKm) {
+
+    const periodHours = calculateOrbitalPeriod(altitudeKm);
+
+    const meanMotion =
+        (2 * Math.PI) / (periodHours * 3600);
+
+    return meanMotion * SIM_SECONDS_PER_FRAME;
+}
+
+function calculateNodalPrecessionRate(altitudeKm, inclinationDeg) {
+
+    const a = EARTH_EQUATORIAL_RADIUS_KM + altitudeKm;
+    const inclination = THREE.MathUtils.degToRad(inclinationDeg);
+
+    const meanMotion = Math.sqrt(EARTH_MU / Math.pow(a, 3));
+
+    const nodalRate =
+        -1.5 *
+        EARTH_J2 *
+        meanMotion *
+        Math.pow(EARTH_EQUATORIAL_RADIUS_KM / a, 2) *
+        Math.cos(inclination);
+
+    // Convert physical radians/second into radians/frame
+    return nodalRate * SIM_SECONDS_PER_FRAME;
+}
 
 // =============================
 // DATA LOADING
@@ -13,7 +115,7 @@ async function loadData() {
 
     constellationCounts = {
         Starlink: data.constellations.Starlink.total_in_orbit,
-        Kuiper: data.constellations.Kuiper.total_in_orbit,
+        AmazonLeo: data.constellations.AmazonLeo.total_in_orbit,
         Qianfan: data.constellations.Qianfan.total_in_orbit,
         Guowang: data.constellations.Guowang.total_in_orbit,
         Starshield: data.constellations.Starshield.total_in_orbit,
@@ -30,7 +132,7 @@ async function loadData() {
     };
 
     animateCounter("starlink-count", constellationCounts.Starlink);
-    animateCounter("kuiper-count", constellationCounts.Kuiper);
+    animateCounter("amazonleo-count", constellationCounts.AmazonLeo);
     animateCounter("qianfan-count", constellationCounts.Qianfan);
     animateCounter("guowang-count", constellationCounts.Guowang);
     animateCounter("starshield-count", constellationCounts.Starshield);
@@ -51,6 +153,7 @@ async function loadData() {
     updateTimers(data.last_updated_utc);
 
     buildConstellationOrbits();   // build visualization
+    // testConstellationOrbits();
 }
 
 function formatEasternTime(timestamp) {
@@ -131,8 +234,6 @@ if (!isCreator) {
 else {
     document.getElementById('update-btn').onclick = updateData;
 }
-
-loadData();
 
 // =============================
 // STARFIELD SCENE
@@ -314,59 +415,187 @@ function buildConstellationOrbits() {
 
     if (!constellationCounts) return;
 
-    const configs = [
-        { name:"Starlink", color:0x4da6ff, radius:earthRadius+20, speed:0.001+(earthRadius+20)/1e6},
-        { name:"Kuiper",   color:0xffb347, radius:earthRadius+30, speed:0.001+(earthRadius+30)/1e6},
-        { name:"Qianfan",  color:0xff5c5c, radius:earthRadius+50, speed:0.001+(earthRadius+50)/1e6},
-        { name:"Guowang",  color:0x5cff9d, radius:earthRadius+40, speed:0.001+(earthRadius+40)/1e6}
-    ];
+    // Clear existing orbital populations
+    while (orbitGroup.children.length > 0) {
+
+        const raanGroup = orbitGroup.children[0];
+
+        raanGroup.traverse(obj => {
+            obj.geometry?.dispose();
+
+            if (Array.isArray(obj.material)) {
+                obj.material.forEach(m => m.dispose());
+            } else {
+                obj.material?.dispose();
+            }
+        });
+
+        orbitGroup.remove(raanGroup);
+    }
 
     configs.forEach(config => {
 
-        const realCount = constellationCounts[config.name] || 0;
+        const totalSatellites =
+            constellationCounts[config.name] || 0;
 
-        // scale real satellites down to visual points
-        const visualCount = Math.max(10, Math.floor(realCount / 1));
+        if (totalSatellites <= 0) return;
 
-        const geometry = new THREE.BufferGeometry();
-        const positions = [];
+        const planeCount = config.planes;
 
-        for (let i = 0; i < visualCount; i++) {
+        const inclination =
+            THREE.MathUtils.degToRad(config.inclinationDeg);
 
-            const angle = Math.random() * Math.PI * 2;
-            const inclination = Math.random() * Math.PI
-            const node = Math.random() * Math.PI * 2
-            const x = Math.cos(angle) * config.radius
-            const z = Math.sin(angle) * config.radius
-            const y = (Math.random() - 0.5) * 30
+        const periodHours =
+            calculateOrbitalPeriod(config.altitudeKm);
 
-            // rotate orbit plane
-            const pos = new THREE.Vector3(x,y,z)
+        const orbitalRate =
+            calculateOrbitalRate(config.altitudeKm);
 
-            pos.applyAxisAngle(new THREE.Vector3(1,0,0), inclination)
-            pos.applyAxisAngle(new THREE.Vector3(0,1,0), node)
+        const nodalRate =
+            calculateNodalPrecessionRate(
+                config.altitudeKm,
+                config.inclinationDeg
+            );
 
-            positions.push(pos.x,pos.y,pos.z)
+        // Distribute satellites evenly among planes
+        const baseCount =
+            Math.floor(totalSatellites / planeCount);
+
+        const remainder =
+            totalSatellites % planeCount;
+
+        for (let p = 0; p < planeCount; p++) {
+
+            const satellitesInPlane =
+                baseCount + (p < remainder ? 1 : 0);
+
+            if (satellitesInPlane === 0) continue;
+
+            // ---------------------------------
+            // 1. RAAN GROUP
+            // ---------------------------------
+
+            const raanGroup = new THREE.Group();
+
+            const raan =
+                (2 * Math.PI * p) / planeCount;
+
+            raanGroup.rotation.y = raan;
+
+            // ---------------------------------
+            // 2. INCLINATION GROUP
+            // ---------------------------------
+
+            const inclinationGroup = new THREE.Group();
+
+            inclinationGroup.rotation.x = inclination;
+
+            // ---------------------------------
+            // 3. SATELLITE POSITIONS
+            // ---------------------------------
+
+            const positions = [];
+
+            for (let s = 0; s < satellitesInPlane; s++) {
+
+                const angle =
+                    (2 * Math.PI * s) / satellitesInPlane;
+
+                // Circular orbit in local XZ plane
+                const x =
+                    Math.cos(angle) * config.visualRadius;
+
+                const y = 0;
+
+                const z =
+                    -Math.sin(angle) * config.visualRadius;
+
+                positions.push(x, y, z);
+            }
+
+            const geometry = new THREE.BufferGeometry();
+
+            geometry.setAttribute(
+                "position",
+                new THREE.Float32BufferAttribute(positions, 3)
+            );
+
+            const material = new THREE.PointsMaterial({
+                color: config.color,
+                size: satSize,
+                sizeAttenuation: true
+            });
+
+            const satellites =
+                new THREE.Points(geometry, material);
+
+            // Build the hierarchy
+            inclinationGroup.add(satellites);
+            raanGroup.add(inclinationGroup);
+            orbitGroup.add(raanGroup);
+
+            // Save animation parameters
+            raanGroup.userData = {
+                name: config.name,
+                orbitalRate,
+                nodalRate,
+                satellites,
+                altitudeKm: config.altitudeKm,
+                periodHours
+            };
         }
 
-        geometry.setAttribute(
-            "position",
-            new THREE.Float32BufferAttribute(positions, 3)
+        console.log(
+            `${config.name}: ${totalSatellites} satellites, ` +
+            `${planeCount} planes, ` +
+            `${periodHours.toFixed(2)} hour period`
         );
-
-        const material = new THREE.PointsMaterial({
-            color: config.color,
-            size: 2
-        });
-
-        const points = new THREE.Points(geometry, material);
-
-        points.userData = {
-            speed: config.speed
-        };
-
-        orbitGroup.add(points);
     });
+}
+
+const testOrbit = new THREE.Group();
+testOrbit.rotation.y = THREE.MathUtils.degToRad(90);
+scene.add(testOrbit);
+let testSatellites = null;
+
+function testConstellationOrbits() {
+
+    const testInclination = new THREE.Group();
+    testInclination.rotation.x =
+        THREE.MathUtils.degToRad(52);
+
+    const positions = [];
+
+    for (let s = 0; s < 24; s++) {
+
+        const angle = 2 * Math.PI * s / 24;
+
+        positions.push(
+            150 * Math.cos(angle),
+            0,
+            -150 * Math.sin(angle)
+        );
+    }
+
+    const geometry = new THREE.BufferGeometry();
+
+    geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(positions, 3)
+    );
+
+    const material = new THREE.PointsMaterial({
+        color: 0x4da6ff,
+        size: 5
+    });
+
+    testSatellites = new THREE.Points(
+        geometry,
+        material
+    );
+
+    testInclination.add(testSatellites);
+    testOrbit.add(testInclination);
 }
 
 // =============================
@@ -375,27 +604,44 @@ function buildConstellationOrbits() {
 
 function animate() {
 
-  requestAnimationFrame(animate)
+    requestAnimationFrame(animate);
 
-  earth.rotation.y += 0.0003;
-//   atmosphere.rotation.y += 0.0006;
-  stars.rotation.y += 0.0004;
-  stars.rotation.x += 0.00015;
-
-  backgroundRenderer.render(
+    // Background stars 
+    stars.rotation.y += 0.0004;
+    stars.rotation.x += 0.00015;
+    backgroundRenderer.render(
         backgroundScene,
         backgroundCamera
     );
 
-  orbitGroup.children.forEach(orbit => {
-      orbit.rotation.y += orbit.userData.speed
-      orbit.rotation.x += orbit.userData.speed * 0.2
-  })
+    // Earth rotates around its north-south axis
+    earth.rotation.y += EARTH_ROTATION_RATE;
 
-  camera.position.x = Math.sin(Date.now() * 0.0001) * 10
-  camera.lookAt(scene.position)
+    // Update every orbital plane
+    orbitGroup.children.forEach(raanGroup => {
 
-  renderer.render(scene, camera)
+        // Satellites orbit within their inclined plane
+        raanGroup.userData.satellites.rotation.y +=
+            raanGroup.userData.orbitalRate/SATELLITE_SPEED_SCALAR;
+
+        // Entire orbital plane slowly precesses around Earth's Y axis
+        raanGroup.rotation.y +=
+            raanGroup.userData.nodalRate/SATELLITE_SPEED_SCALAR;
+    });
+
+    // Test
+    // if (testSatellites) {
+    //     testSatellites.rotation.y += 0.001;
+    // }
+
+    // Camera
+    camera.position.x = Math.sin(Date.now() * 0.0001) * 10;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
 }
 
-animate()
+animate();
+loadData().catch(error => {
+    console.error("Error loading satellite data:", error);
+});
