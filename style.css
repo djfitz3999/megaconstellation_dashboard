@@ -129,7 +129,9 @@ a:hover {
     height: 100%;
 }
 
-/* Constellation legend */
+/* =============================
+   VISUALIZATION LEGEND
+   ============================= */
 #constellation-legend {
     width: 65%;
     max-width: 100%;
@@ -185,6 +187,126 @@ a:hover {
 
 .legend-name {
     overflow-wrap: anywhere;
+}
+
+/* =============================
+   VISUALIZATION CONTROLS
+   ============================= */
+.orbit-controls {
+    width: 65%;
+    max-width: 100%;
+    margin: 10px auto 20px;
+    box-sizing: border-box;
+    text-align: left;
+    font-size: 12px;
+    color: #bbb;
+}
+
+.orbit-controls summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
+    color: #9aaaff;
+    font-size: 24px;
+    letter-spacing: 1px;
+    padding: 8px;
+    border: 1px solid #26334b;
+    border-radius: 5px;
+    user-select: none;
+}
+
+.orbit-controls summary::-webkit-details-marker {
+    display: none;
+}
+
+.orbit-controls summary:hover {
+    background: rgba(154, 170, 255, 0.08);
+}
+
+.controls-icon {
+    font-size: 45px;
+}
+
+#orbit-controls-content {
+    margin-top: 8px;
+    padding: 12px;
+    background: rgba(10, 18, 35, 0.9);
+    border: 1px solid #26334b;
+    border-radius: 5px;
+}
+
+.orbit-control-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #26334b;
+}
+
+.orbit-control-actions button {
+    border: none;
+    padding: 5px;
+    font-family: inherit;
+    font-size: 22px;
+    color: #9aaaff;
+    background: none;
+    cursor: pointer;
+}
+
+.orbit-control-actions button:hover {
+    color: white;
+    background: none;
+    box-shadow: none;
+}
+
+.constellation-control {
+    margin: 8px 0;
+}
+
+.constellation-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 24px;
+    color: #ddd;
+}
+
+.constellation-heading input {
+    accent-color: #9aaaff;
+}
+
+.constellation-color {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    border-radius: 1px;
+}
+
+.shell-controls {
+    margin: 5px 0 10px 29px;
+    padding-left: 10px;
+    border-left: 1px solid #26334b;
+}
+
+.shell-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 7px 0;
+    font-size: 22px;
+    color: #999;
+}
+
+.shell-control input {
+    accent-color: #9aaaff;
+}
+
+.orbit-controls input[type="checkbox"] {
+    cursor: pointer;
 }
 
 body {

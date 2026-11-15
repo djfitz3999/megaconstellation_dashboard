@@ -130,6 +130,251 @@ let configs = [
 ];
 
 // =============================
+// Visualization Controls
+// =============================
+
+// Track visibility of every configured orbital shell
+const orbitVisibility = {};
+configs.forEach(config => {
+
+    orbitVisibility[config.name] = {};
+
+    config.shells.forEach(shell => {
+        orbitVisibility[config.name][shell.name] = true;
+    });
+
+});
+function renderOrbitControls() {
+
+    const container = document.getElementById(
+        "orbit-controls-content"
+    );
+
+    if (!container) return;
+
+    let html = `
+        <div class="orbit-control-actions">
+            <button type="button" data-orbit-action="show-all">
+                SELECT ALL
+            </button>
+
+            <button type="button" data-orbit-action="hide-all">
+                DESELECT ALL
+            </button>
+        </div>
+    `;
+
+    configs.forEach(config => {
+
+        const colorHex =
+            `#${config.color.toString(16).padStart(6, "0")}`;
+
+        html += `
+            <div class="constellation-control">
+
+                <label class="constellation-heading">
+
+                    <input
+                        type="checkbox"
+                        data-constellation-toggle="${config.name}"
+                        checked
+                    >
+
+                    <span
+                        class="constellation-color"
+                        style="background-color: ${colorHex};"
+                    ></span>
+
+                    <span>${config.leg_name}</span>
+
+                </label>
+
+                <div class="shell-controls">
+        `;
+
+        config.shells.forEach(shell => {
+
+            html += `
+                <label class="shell-control">
+
+                    <input
+                        type="checkbox"
+                        data-shell-constellation="${config.name}"
+                        data-shell-name="${shell.name}"
+                        checked
+                    >
+
+                    <span>${shell.name}</span>
+
+                </label>
+            `;
+
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+    });
+
+    container.innerHTML = html;
+
+    // Attach one event listener to the whole panel
+    container.addEventListener("change", handleOrbitControlChange);
+
+    container.addEventListener("click", event => {
+        if (event.target.matches("[data-orbit-action]")) {
+            event.preventDefault();
+            handleOrbitControlAction(event.target.dataset.orbitAction);
+        }
+    });
+}
+function setShellVisibility(constellationName, shellName, visible) {
+
+    // Update the saved visibility state
+    orbitVisibility[constellationName][shellName] = visible;
+
+    // Find the corresponding Three.js group
+    const shellGroup =
+        orbitGroup.userData.shellGroups?.[constellationName]?.[shellName];
+
+    // Toggle rendering without rebuilding geometry
+    if (shellGroup) {
+        shellGroup.visible = visible;
+    }
+}
+
+
+function updateConstellationCheckbox(constellationName) {
+
+    const container = document.getElementById(
+        "orbit-controls-content"
+    );
+
+    const parentCheckbox = Array.from(
+        container.querySelectorAll("[data-constellation-toggle]")
+    ).find(input =>
+        input.dataset.constellationToggle === constellationName
+    );
+
+    const shellCheckboxes = Array.from(
+        container.querySelectorAll("[data-shell-constellation]")
+    ).filter(input =>
+        input.dataset.shellConstellation === constellationName
+    );
+
+    if (!parentCheckbox || shellCheckboxes.length === 0) return;
+
+    const enabledCount = shellCheckboxes.filter(
+        input => input.checked
+    ).length;
+
+    parentCheckbox.checked =
+        enabledCount === shellCheckboxes.length;
+
+    parentCheckbox.indeterminate =
+        enabledCount > 0 &&
+        enabledCount < shellCheckboxes.length;
+}
+
+
+function handleOrbitControlChange(event) {
+
+    const target = event.target;
+
+    // ---------------------------------
+    // CONSTELLATION CHECKBOX
+    // ---------------------------------
+
+    if (target.matches("[data-constellation-toggle]")) {
+
+        const constellationName =
+            target.dataset.constellationToggle;
+
+        const visible = target.checked;
+
+        // Enable/disable every shell in this constellation
+        configs.find(config =>
+            config.name === constellationName
+        )?.shells.forEach(shell => {
+
+            setShellVisibility(
+                constellationName,
+                shell.name,
+                visible
+            );
+
+            // Keep child checkboxes synchronized
+            const childCheckbox = Array.from(
+                document.querySelectorAll("[data-shell-constellation]")
+            ).find(input =>
+                input.dataset.shellConstellation === constellationName &&
+                input.dataset.shellName === shell.name
+            );
+
+            if (childCheckbox) {
+                childCheckbox.checked = visible;
+            }
+        });
+
+        updateConstellationCheckbox(constellationName);
+
+        return;
+    }
+
+    // ---------------------------------
+    // INDIVIDUAL SHELL CHECKBOX
+    // ---------------------------------
+
+    if (target.matches("[data-shell-constellation]")) {
+
+        const constellationName =
+            target.dataset.shellConstellation;
+
+        const shellName =
+            target.dataset.shellName;
+
+        setShellVisibility(
+            constellationName,
+            shellName,
+            target.checked
+        );
+
+        updateConstellationCheckbox(constellationName);
+    }
+}
+
+
+function handleOrbitControlAction(action) {
+
+    const visible = action === "show-all";
+
+    configs.forEach(config => {
+
+        config.shells.forEach(shell => {
+
+            setShellVisibility(
+                config.name,
+                shell.name,
+                visible
+            );
+
+        });
+
+        updateConstellationCheckbox(config.name);
+    });
+
+    // Synchronize all checkboxes
+    document.querySelectorAll(
+        "#orbit-controls-content input[type='checkbox']"
+    ).forEach(checkbox => {
+        checkbox.checked = visible;
+        checkbox.indeterminate = false;
+    });
+}
+
+// =============================
 // PHYSICS CONFIGURATION
 // =============================
 
@@ -539,10 +784,10 @@ const earthMaterial = new THREE.ShaderMaterial({
 
             // Illuminate the daytime surface
             float daylight = max(sunAngle, 0.0);
-            dayColor *= (0.12 + 1.15 * daylight);
+            dayColor *= (0.12 + 1.5 * daylight);
 
             // Keep city lights visible on the night side
-            nightColor *= 1.35;
+            nightColor *= 1.5;
 
             // Blend between the two textures
             vec3 finalColor = mix(
@@ -647,11 +892,17 @@ function buildConstellationOrbits() {
     // Store every orbital plane here for the animation loop
     orbitGroup.userData.animatedPlanes = [];
 
+    // Store shell groups for visibility controls
+    orbitGroup.userData.shellGroups = {};   
+
     // ---------------------------------
     // 2. ITERATE THROUGH CONSTELLATIONS
     // ---------------------------------
 
     configs.forEach(config => {
+
+        // Initialize shell group entries for this constellation
+        orbitGroup.userData.shellGroups[config.name] = {};
 
         const totalSatellites =
             constellationCounts[config.name] || 0;
@@ -753,7 +1004,25 @@ function buildConstellationOrbits() {
 
             const shellGroup = new THREE.Group();
 
+            // Apply the user's current visibility selection
+            shellGroup.visible =
+                orbitVisibility[config.name]?.[shell.name] ?? true;
+
             orbitGroup.add(shellGroup);
+
+            // Save a reference so the UI can toggle this shell
+            orbitGroup.userData.shellGroups[config.name][shell.name] = shellGroup;
+            /* Conceptual look up functionality for visualization settings:
+            orbitGroup.userData.shellGroups = {
+                Starlink: {
+                    Starlink_G1_Group1: shellGroup1,
+                    Starlink_G2A_Group6: shellGroup2
+                },
+                AmazonLeo: {
+                    Kuiper_KP1-C: shellGroup3
+                }
+            };
+            */
 
             // Avoid empty orbital planes when there are
             // fewer satellites than configured planes.
@@ -954,6 +1223,7 @@ function animate() {
 }
 
 renderConstellationLegend();
+renderOrbitControls();
 animate();
 loadData().catch(error => {
     console.error("Error loading satellite data:", error);
