@@ -189,20 +189,24 @@ a:hover {
     overflow-wrap: anywhere;
 }
 
+
+
 /* =============================
    VISUALIZATION CONTROLS
    ============================= */
+
 .orbit-controls {
     width: 65%;
     max-width: 100%;
     margin: 10px auto 20px;
     box-sizing: border-box;
     text-align: left;
-    font-size: 12px;
-    color: #bbb;
+    font-size: 20px;
+    color: #ddd;
 }
 
-.orbit-controls summary {
+/* Main Orbital Layers button */
+.orbit-controls > summary {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -218,24 +222,26 @@ a:hover {
     user-select: none;
 }
 
-.orbit-controls summary::-webkit-details-marker {
+.orbit-controls > summary::-webkit-details-marker {
     display: none;
 }
 
-.orbit-controls summary:hover {
+.orbit-controls > summary:hover {
     background: rgba(154, 170, 255, 0.08);
 }
 
 .controls-icon {
-    font-size: 45px;
+    font-size: 35px;
 }
 
+/* Controls panel */
 #orbit-controls-content {
     margin-top: 8px;
     padding: 12px;
     background: rgba(10, 18, 35, 0.9);
     border: 1px solid #26334b;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
 .orbit-control-actions {
@@ -251,7 +257,7 @@ a:hover {
     border: none;
     padding: 5px;
     font-family: inherit;
-    font-size: 22px;
+    font-size: 18px;
     color: #9aaaff;
     background: none;
     cursor: pointer;
@@ -263,48 +269,141 @@ a:hover {
     box-shadow: none;
 }
 
+/* =============================
+   CONSTELLATION ROWS
+   ============================= */
+
 .constellation-control {
-    margin: 8px 0;
+    margin: 10px 0;
 }
 
+/* Every constellation gets the same row layout */
 .constellation-heading {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 24px;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 10px 0;
+    font-size: 22px;
     color: #ddd;
 }
 
-.constellation-heading input {
-    accent-color: #9aaaff;
+/* Expandable section takes all available space */
+.constellation-details {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Multi-shell constellation name and arrow */
+.constellation-details > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    list-style: none;
+    color: #ddd;
+    font-size: 22px;
+    letter-spacing: normal;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    user-select: none;
+}
+
+.constellation-details > summary:hover {
+    background: none;
+}
+
+.constellation-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.constellation-details > summary::before {
+    content: "›";
+    color: #9aaaff;
+    font-size: 24px;
+    width: 22px;
+    flex: 0 0 22px;
+    text-align: center;
+    transition: transform 0.15s ease;
+}
+
+.constellation-details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+/* Single-shell placeholder: reserves the arrow space */
+.expand-arrow-placeholder {
+    width: 22px;
+    flex: 0 0 22px;
+}
+
+/* Name, swatch, and shell count */
+.constellation-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;             /* Fill remaining row width */
+    min-width: 0;
+    font-size: 22px;
+    color: #ddd;
 }
 
 .constellation-color {
-    width: 9px;
-    height: 9px;
-    flex: 0 0 9px;
-    border-radius: 1px;
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+    border-radius: 2px;
 }
 
+.shell-count {
+    color: #aaa;
+    font-size: 20px;
+    margin-left: 3px;
+    white-space: nowrap;
+}
+
+/* Parent constellation checkbox */
+.constellation-toggle {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin: 0 2px 0 0;
+    accent-color: #9aaaff;
+    cursor: pointer;
+}
+
+/* =============================
+   NESTED ORBITAL SHELLS
+   ============================= */
+
 .shell-controls {
-    margin: 5px 0 10px 29px;
-    padding-left: 10px;
+    margin: 8px 0 12px 32px;
+    padding-left: 14px;
     border-left: 1px solid #26334b;
+    box-sizing: border-box;
+    max-width: calc(100% - 32px);
 }
 
 .shell-control {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin: 7px 0;
-    font-size: 22px;
-    color: #999;
+    gap: 12px;
+    margin: 9px 0;
+    font-size: 18px;
+    color: #bbb;
 }
 
 .shell-control input {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
     accent-color: #9aaaff;
+    cursor: pointer;
 }
 
+/* General checkbox behavior */
 .orbit-controls input[type="checkbox"] {
     cursor: pointer;
 }
