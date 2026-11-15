@@ -143,6 +143,7 @@ a:hover {
 
 .legend-title {
     font-size: 36px;
+    font-weight: bold;
     color: #9aaaff;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -173,6 +174,7 @@ a:hover {
     gap: 7px;
     min-width: 0;
     font-size: 24px;
+    font-weight: bold;
     color: #bbb;
     line-height: 1.3;
 }
@@ -189,8 +191,6 @@ a:hover {
     overflow-wrap: anywhere;
 }
 
-
-
 /* =============================
    VISUALIZATION CONTROLS
    ============================= */
@@ -201,7 +201,7 @@ a:hover {
     margin: 10px auto 20px;
     box-sizing: border-box;
     text-align: left;
-    font-size: 20px;
+    font-size: 24px;
     color: #ddd;
 }
 
@@ -214,7 +214,8 @@ a:hover {
     cursor: pointer;
     list-style: none;
     color: #9aaaff;
-    font-size: 24px;
+    font-size: 28px;
+    font-weight: bold;
     letter-spacing: 1px;
     padding: 8px;
     border: 1px solid #26334b;
@@ -244,6 +245,7 @@ a:hover {
     box-sizing: border-box;
 }
 
+/* Show All / Hide All */
 .orbit-control-actions {
     display: flex;
     justify-content: flex-end;
@@ -257,7 +259,8 @@ a:hover {
     border: none;
     padding: 5px;
     font-family: inherit;
-    font-size: 18px;
+    font-size: 22px;
+    font-weight: bold;
     color: #9aaaff;
     background: none;
     cursor: pointer;
@@ -277,25 +280,22 @@ a:hover {
     margin: 10px 0;
 }
 
-/* Every constellation gets the same row layout */
+/* Parent row: expandable name + checkbox */
 .constellation-heading {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     width: 100%;
     box-sizing: border-box;
     margin: 10px 0;
-    font-size: 22px;
-    color: #ddd;
 }
 
-/* Expandable section takes all available space */
+/* Constellation expandable section */
 .constellation-details {
     flex: 1;
     min-width: 0;
 }
 
-/* Multi-shell constellation name and arrow */
 .constellation-details > summary {
     display: flex;
     align-items: center;
@@ -333,20 +333,15 @@ a:hover {
     transform: rotate(90deg);
 }
 
-/* Single-shell placeholder: reserves the arrow space */
-.expand-arrow-placeholder {
-    width: 22px;
-    flex: 0 0 22px;
-}
-
-/* Name, swatch, and shell count */
+/* Constellation name, color, and shell count */
 .constellation-name {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;             /* Fill remaining row width */
+    flex: 1;
     min-width: 0;
-    font-size: 22px;
+    font-size: 24px;
+    font-weight: bold;
     color: #ddd;
 }
 
@@ -366,16 +361,27 @@ a:hover {
 
 /* Parent constellation checkbox */
 .constellation-toggle {
-    width: 18px;
-    height: 18px;
-    flex: 0 0 18px;
-    margin: 0 2px 0 0;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    margin: 3px 2px 0 0;
     accent-color: #9aaaff;
     cursor: pointer;
 }
 
 /* =============================
-   NESTED ORBITAL SHELLS
+   ORBITAL SPECIFICATIONS
+   ============================= */
+
+.orbital-specs {
+    margin: 5px 0 10px 32px;
+    font-size: 22px;
+    line-height: 1.5;
+    color: #999;
+}
+
+/* =============================
+   NESTED SHELL ROWS
    ============================= */
 
 .shell-controls {
@@ -383,22 +389,70 @@ a:hover {
     padding-left: 14px;
     border-left: 1px solid #26334b;
     box-sizing: border-box;
-    max-width: calc(100% - 32px);
 }
 
-.shell-control {
+/* Shell expandable section + its checkbox */
+.shell-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 9px 0;
+}
+
+.shell-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.shell-details > summary {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 9px 0;
-    font-size: 18px;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
     color: #bbb;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 0;
+    user-select: none;
 }
 
-.shell-control input {
-    width: 16px;
-    height: 16px;
-    flex: 0 0 16px;
+.shell-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.shell-details > summary::before {
+    content: "›";
+    color: #9aaaff;
+    font-size: 21px;
+    width: 18px;
+    flex: 0 0 18px;
+    text-align: center;
+    transition: transform 0.15s ease;
+}
+
+.shell-details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.shell-name {
+    min-width: 0;
+}
+
+/* Shell specification indentation */
+.shell-details .orbital-specs {
+    margin: 4px 0 8px 26px;
+    font-size: 20px;
+}
+
+/* Individual shell checkbox */
+.shell-toggle {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin: 3px 2px 0 0;
     accent-color: #9aaaff;
     cursor: pointer;
 }

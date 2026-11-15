@@ -144,176 +144,217 @@ configs.forEach(config => {
     });
 
 });
+
 function renderOrbitControls() {
-
-    const container = document.getElementById(
-        "orbit-controls-content"
-    );
-
+    const container = document.getElementById("orbit-controls-content");
     if (!container) return;
 
     let html = `
         <div class="orbit-control-actions">
-            <button type="button" data-orbit-action="show-all">
-                SELECT ALL
-            </button>
-
-            <button type="button" data-orbit-action="hide-all">
-                DESELECT ALL
-            </button>
+            <button data-orbit-action="show">SELECT ALL</button>
+            <button data-orbit-action="hide">DESELECT ALL</button>
         </div>
     `;
 
     configs.forEach(config => {
+        const shells = config.shells || [];
+        const shellCount = shells.length;
 
-        const colorHex =
-            `#${config.color.toString(16).padStart(6, "0")}`;
+        if (shellCount === 0) return;
 
-        const shellCount = config.shells.length;
+        const colorHex = `#${config.color.toString(16).padStart(6, "0")}`;
 
-        const enabledCount = config.shells.filter(shell =>
-            orbitVisibility[config.name]?.[shell.name] ?? true
+        const enabledCount = shells.filter(shell =>
+            orbitVisibility[config.name]?.[shell.name] !== false
         ).length;
 
         const allEnabled = enabledCount === shellCount;
 
-        const someEnabled =
-            enabledCount > 0 && enabledCount < shellCount;
+        // All constellations start collapsed.
+        const constellationOpen = "";
 
-        // ---------------------------------
-        // MULTI-SHELL CONSTELLATIONS
-        // ---------------------------------
+        html += `
+            <div class="constellation-control">
+                <div class="constellation-heading">
 
-        if (shellCount > 1) {
+                    <details
+                        class="constellation-details"
+                        ${constellationOpen}
+                    >
+                        <summary>
+                            <span class="constellation-name">
+                                <span
+                                    class="constellation-color"
+                                    style="background:${colorHex}"
+                                ></span>
+                                <span>${config.leg_name}</span>
+                                <span class="shell-count">(${shellCount})</span>
+                            </span>
+                        </summary>
+        `;
+
+        if (shellCount === 1) {
+            const shell = shells[0];
 
             html += `
-                <div class="constellation-control">
-
-                    <div class="constellation-heading">
-
-                        <details class="constellation-details">
-
-                            <summary>
-                                <span class="constellation-name">
-                                    <span
-                                        class="constellation-color"
-                                        style="background-color: ${colorHex};"
-                                    ></span>
-
-                                    ${config.leg_name}
-
-                                    <span class="shell-count">
-                                        (${shellCount})
-                                    </span>
-                                </span>
-                            </summary>
-
-                            <div class="shell-controls">
+                        <div class="orbital-specs">
+                            ${shell.altitudeKm} km ·
+                            ${shell.inclinationDeg}° ·
+                            ${shell.planes} planes
+                        </div>
             `;
+        } else {
+            html += `<div class="shell-controls">`;
 
-            config.shells.forEach(shell => {
-
-                const checked =
-                    orbitVisibility[config.name]?.[shell.name] ?? true;
+            shells.forEach(shell => {
+                const shellVisible =
+                    orbitVisibility[config.name]?.[shell.name] !== false;
 
                 html += `
-                    <label class="shell-control">
+                    <div class="shell-heading">
+                        <details class="shell-details" open>
+                            <summary>
+                                <span class="shell-name">${shell.name}</span>
+                            </summary>
 
-                        <input
-                            type="checkbox"
-                            data-shell-constellation="${config.name}"
-                            data-shell-name="${shell.name}"
-                            ${checked ? "checked" : ""}
-                        >
-
-                        <span>${shell.name}</span>
-
-                    </label>
-                `;
-            });
-
-            html += `
+                            <div class="orbital-specs">
+                                ${shell.altitudeKm} km ·
+                                ${shell.inclinationDeg}° ·
+                                ${shell.planes} planes
                             </div>
-
                         </details>
 
                         <input
                             type="checkbox"
-                            class="constellation-toggle"
-                            data-constellation-toggle="${config.name}"
-                            ${allEnabled ? "checked" : ""}
-                            ${someEnabled ? 'data-indeterminate="true"' : ""}
-                        >
-
-                    </div>
-                </div>
-            `;
-
-        }
-
-        // ---------------------------------
-        // SINGLE-SHELL CONSTELLATIONS
-        // ---------------------------------
-
-        else if (shellCount === 1) {
-
-            const shell = config.shells[0];
-
-            const checked =
-                orbitVisibility[config.name]?.[shell.name] ?? true;
-
-            html += `
-                <div class="constellation-control">
-
-                    <div class="constellation-heading">
-                        <span class="expand-arrow-placeholder"></span>
-
-                        <span class="constellation-name">
-                            <span class="constellation-color" style="background:${colorHex}"></span>
-                            ${config.leg_name}
-                            <span class="shell-count">(${shellCount})</span>
-                        </span>
-
-                        <input
-                            type="checkbox"
-                            class="constellation-toggle"
-                            data-constellation-toggle="${config.name}"
-                            checked
+                            class="shell-toggle"
+                            data-shell-constellation="${config.name}"
+                            data-shell-name="${shell.name}"
+                            ${shellVisible ? "checked" : ""}
                         >
                     </div>
+                `;
+            });
 
-                </div>
-            `;
+            html += `</div>`;
         }
 
+        html += `
+                    </details>
+
+                    <input
+                        type="checkbox"
+                        class="constellation-toggle"
+                        data-constellation-toggle="${config.name}"
+                        ${allEnabled ? "checked" : ""}
+                    >
+
+                </div>
+            </div>
+        `;
     });
 
     container.innerHTML = html;
 
-    // Restore indeterminate parent checkbox states
-    container.querySelectorAll(
-        '[data-indeterminate="true"]'
-    ).forEach(checkbox => {
-        checkbox.indeterminate = true;
-    });
+    // Update parent and child checkbox states to match orbitVisibility.
+    function syncCheckboxes() {
+        configs.forEach(config => {
+            const shells = config.shells || [];
 
-    // Attach event listeners
-    container.addEventListener(
-        "change",
-        handleOrbitControlChange
-    );
+            const enabledCount = shells.filter(shell =>
+                orbitVisibility[config.name]?.[shell.name] !== false
+            ).length;
 
-    container.addEventListener("click", event => {
+            const allEnabled = enabledCount === shells.length;
+            const someEnabled =
+                enabledCount > 0 && enabledCount < shells.length;
 
-        if (event.target.matches("[data-orbit-action]")) {
-
-            event.preventDefault();
-
-            handleOrbitControlAction(
-                event.target.dataset.orbitAction
+            // Update the parent constellation checkbox.
+            const parentCheckbox = [
+                ...container.querySelectorAll("[data-constellation-toggle]")
+            ].find(checkbox =>
+                checkbox.dataset.constellationToggle === config.name
             );
+
+            if (parentCheckbox) {
+                parentCheckbox.checked = allEnabled;
+                parentCheckbox.indeterminate = someEnabled;
+            }
+
+            // Update each individual shell checkbox.
+            container.querySelectorAll("[data-shell-constellation]").forEach(
+                checkbox => {
+                    if (checkbox.dataset.shellConstellation !== config.name) {
+                        return;
+                    }
+
+                    checkbox.checked =
+                        orbitVisibility[config.name]?.[
+                            checkbox.dataset.shellName
+                        ] !== false;
+                }
+            );
+        });
+    }
+
+    // Handle individual shell and parent constellation checkboxes.
+    container.onchange = event => {
+        const checkbox = event.target;
+
+        // Parent constellation checkbox:
+        // Toggle every shell belonging to this constellation.
+        if (checkbox.matches("[data-constellation-toggle]")) {
+            const constellationName = checkbox.dataset.constellationToggle;
+            const config = configs.find(c => c.name === constellationName);
+
+            if (!config) return;
+
+            config.shells.forEach(shell => {
+                setShellVisibility(
+                    constellationName,
+                    shell.name,
+                    checkbox.checked
+                );
+            });
+
+            syncCheckboxes();
+            return;
         }
-    });
+
+        // Individual shell checkbox:
+        // Toggle only the selected shell.
+        if (checkbox.matches("[data-shell-constellation]")) {
+            setShellVisibility(
+                checkbox.dataset.shellConstellation,
+                checkbox.dataset.shellName,
+                checkbox.checked
+            );
+
+            syncCheckboxes();
+        }
+    };
+
+    // Handle SHOW ALL and HIDE ALL.
+    container.onclick = event => {
+        const button = event.target.closest("[data-orbit-action]");
+        if (!button) return;
+
+        const visible = button.dataset.orbitAction === "show";
+
+        configs.forEach(config => {
+            config.shells.forEach(shell => {
+                setShellVisibility(
+                    config.name,
+                    shell.name,
+                    visible
+                );
+            });
+        });
+
+        syncCheckboxes();
+    };
+
+    // Ensure the initial checkbox states match the visibility state.
+    syncCheckboxes();
 }
 
 function setShellVisibility(constellationName, shellName, visible) {
