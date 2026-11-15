@@ -480,18 +480,82 @@ const textureLoader = new THREE.TextureLoader()
 
 const earthDay = textureLoader.load("./textures/nasa_blue_marble.jpg")
 const earthNight = textureLoader.load("./textures/nasa_blue_marble_night.jpg")
+earthDay.colorSpace = THREE.SRGBColorSpace;
+earthNight.colorSpace = THREE.SRGBColorSpace;
 
 const earthGeometry = new THREE.SphereGeometry(earthRadius, earthRadius, earthRadius)
 
-const earthMaterial = new THREE.MeshPhongMaterial({
-    map: earthDay,
-    emissiveMap: earthNight,
-    emissive: new THREE.Color(0xffffff),
-    emissiveIntensity: 0.6
-})
+const earthMaterial = new THREE.ShaderMaterial({
 
+    uniforms: {
+        dayMap: { value: earthDay },
+        nightMap: { value: earthNight },
+
+        // Direction from the center of Earth toward the Sun
+        sunDirection: {
+            value: new THREE.Vector3(100, 10, 0).normalize()
+        }
+    },
+
+    vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+
+        void main() {
+
+            vUv = uv;
+
+            // Transform the surface normal into world coordinates
+            vWorldNormal = normalize(mat3(transpose(inverse(modelMatrix))) * normal);
+
+            gl_Position = projectionMatrix *
+                          modelViewMatrix *
+                          vec4(position, 1.0);
+        }
+    `,
+
+    fragmentShader: `
+        uniform sampler2D dayMap;
+        uniform sampler2D nightMap;
+        uniform vec3 sunDirection;
+
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+
+        void main() {
+
+            // Surface orientation relative to the Sun
+            float sunAngle = dot(
+                normalize(vWorldNormal),
+                normalize(sunDirection)
+            );
+
+            // Smooth transition around the day/night boundary
+            float dayBlend = smoothstep(-0.10, 0.10, sunAngle);
+
+            // Sample both Earth textures
+            vec3 dayColor = texture2D(dayMap, vUv).rgb;
+            vec3 nightColor = texture2D(nightMap, vUv).rgb;
+
+            // Illuminate the daytime surface
+            float daylight = max(sunAngle, 0.0);
+            dayColor *= (0.12 + 1.15 * daylight);
+
+            // Keep city lights visible on the night side
+            nightColor *= 1.35;
+
+            // Blend between the two textures
+            vec3 finalColor = mix(
+                nightColor,
+                dayColor,
+                dayBlend
+            );
+
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+    `
+});
 const earth = new THREE.Mesh(earthGeometry, earthMaterial)
-
 scene.add(earth)
 
 // Adjust renderer and camera to the visualization container
@@ -507,10 +571,8 @@ function resizeScene() {
     camera.aspect = width / height
     camera.updateProjectionMatrix()
 }
-
 const resizeObserver = new ResizeObserver(resizeScene)
 resizeObserver.observe(canvasContainer)
-
 resizeScene()
 
 // // =============================
@@ -533,11 +595,10 @@ resizeScene()
 // LIGHTING
 // =============================
 
-// Sunlight
-const sunLight = new THREE.DirectionalLight(0xffffff, 1.2)
-sunLight.position.set(200,100,100)
-
-scene.add(sunLight)
+// // Sunlight
+// const sunLight = new THREE.DirectionalLight(0xffffff, 1.2)
+// sunLight.position.set(100,10,0)
+// scene.add(sunLight)
 
 // soft ambient light
 const ambient = new THREE.AmbientLight(0x333333)
