@@ -262,7 +262,7 @@ let configs = [
                 inclinationDeg: 45,
                 planes: 1,
                 visualRadius: 129,
-                // raanOffset: 0
+                raanOffset: 0
             },
             {
                 name: "Orbcomm_OG1_B",
@@ -271,7 +271,7 @@ let configs = [
                 inclinationDeg: 45,
                 planes: 1,
                 visualRadius: 130,
-                // raanOffset: 90
+                raanOffset: 90
             },
             {
                 name: "Orbcomm_OG1_C",
@@ -280,7 +280,7 @@ let configs = [
                 inclinationDeg: 45,
                 planes: 1,
                 visualRadius: 130,
-                // raanOffset: 180
+                raanOffset: 180
             },
             {
                 name: "Orbcomm_OG1_D",
@@ -289,7 +289,7 @@ let configs = [
                 inclinationDeg: 45,
                 planes: 1,
                 visualRadius: 130,
-                // raanOffset: 270
+                raanOffset: 270
             },
             {
                 name: "Orbcomm_OG1_F",
@@ -314,7 +314,7 @@ let configs = [
                 inclinationDeg: 48,
                 planes: 1,
                 visualRadius: 125.5,
-                // raanOffset: 60
+                raanOffset: 60
             },
             {
                 name: "Orbcomm_OG2_K",
@@ -323,7 +323,7 @@ let configs = [
                 inclinationDeg: 47,
                 planes: 1,
                 visualRadius: 127,
-                // raanOffset: 60
+                raanOffset: 60
             },
             {
                 name: "Orbcomm_OG2_L",
@@ -332,7 +332,7 @@ let configs = [
                 inclinationDeg: 47,
                 planes: 3,
                 visualRadius: 127,
-                // raanOffset: 120
+                raanOffset: 120
             }
         ]
     },
@@ -1416,7 +1416,11 @@ function buildConstellationOrbits() {
                 // RAAN group: distributes planes around Earth's Y axis
                 const raanGroup = new THREE.Group();
 
+                const raanOffset =
+                    THREE.MathUtils.degToRad(shell.raanOffset ?? 0);
+
                 const raan =
+                    raanOffset +
                     (2 * Math.PI * p) / activePlaneCount;
 
                 raanGroup.rotation.y = raan;
@@ -1432,10 +1436,25 @@ function buildConstellationOrbits() {
 
                 const positions = [];
 
+                // Stagger adjacent orbital planes by a fraction
+                // of the in-plane satellite spacing.
+                // Defaults to 0.7 if phaseFraction undefined in configs
+                // @notes: 0.5 and 1.0 just seem to change periodicity of 
+                // polar convergence, but a "prime-ish" value removes
+                // visual periodicity
+                const phaseFraction = shell.phaseFraction ?? 0.7;
+
+                const satelliteSpacing =
+                    (2 * Math.PI) / satellitesInPlane;
+
+                const planePhaseOffset =
+                    p * phaseFraction * satelliteSpacing;
+
                 for (let s = 0; s < satellitesInPlane; s++) {
 
                     const angle =
-                        (2 * Math.PI * s) / satellitesInPlane;
+                        (2 * Math.PI * s) / satellitesInPlane
+                        + planePhaseOffset;
 
                     positions.push(
                         Math.cos(angle) * shell.visualRadius,
