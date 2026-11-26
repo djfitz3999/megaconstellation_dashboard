@@ -47,7 +47,7 @@ let configs = [
                 altitudeKm: 483,
                 inclinationDeg: 43,
                 percent: 35,
-                visualRadius: 122
+                visualRadius: 121
             },
             {
                 name: "Starlink_G2A_Group7",
@@ -80,7 +80,7 @@ let configs = [
         color: 0xff5c5c,
         shells: [
             {
-                name: "Guowang_Nominal_86inc",
+                name: "Guowang_Shell1",
                 percent: 30,
                 altitudeKm: 1168,
                 inclinationDeg: 86.5,
@@ -88,7 +88,7 @@ let configs = [
                 visualRadius: 145
             },
             {
-                name: "Guowang_Nominal_50inc",
+                name: "Guowang_Shell2",
                 percent: 70,
                 altitudeKm: 1149,
                 inclinationDeg: 50,
@@ -118,7 +118,7 @@ let configs = [
         color: 0x5cff9d,
         shells: [
             {
-                name: "OneWeb_Nominal",
+                name: "OneWeb",
                 percent: 100,
                 altitudeKm: 1200,
                 inclinationDeg: 87.9,
@@ -127,6 +127,245 @@ let configs = [
             }
         ]
     },
+        {
+        name: "Starshield",
+        leg_name: "SpaceX Starshield",
+        color: 0xb38cff,
+        shells: [
+            {
+                name: "Starshield_Nominal",
+                percent: 100,
+                altitudeKm: 578,
+                inclinationDeg: 70,
+                planes: 16,
+                visualRadius: 128
+            }
+        ]
+    },
+    {
+        name: "PWSA",
+        leg_name: "PWSA (USA)",
+        color: 0x00d4c7,
+        shells: [
+            {
+                name: "PWSA_Checkmate_and_Wildfire",
+                percent: 95,
+                altitudeKm: 948,
+                inclinationDeg: 81,
+                planes: 4,
+                visualRadius: 135
+            },            
+            {
+                name: "PWSA_Shell4",
+                percent: 5,
+                altitudeKm: 998,
+                inclinationDeg: 40,
+                planes: 1,
+                visualRadius: 137
+            }
+        ]
+    },
+    {
+        name: "Jilin",
+        leg_name: "Jilin-1 (吉林一号)",
+        color: 0xffd700,
+        shells: [
+            {
+                name: "Jilin_Shell1",
+                percent: 100,
+                altitudeKm: 540,
+                inclinationDeg: 97.5,
+                planes: 5,
+                visualRadius: 123
+            }
+        ]
+    },
+    {
+        name: "Spire",
+        leg_name: "Spire Global",
+        color: 0x9b7653,
+        shells: [
+            {
+                name: "Spire_Shell2",
+                percent: 97,
+                altitudeKm: 500,
+                inclinationDeg: 97.5,
+                planes: 6,
+                visualRadius: 122
+            },
+            {
+                name: "Spire_Shell3",
+                percent: 3,
+                altitudeKm: 500,
+                inclinationDeg: 83,
+                planes: 1,
+                visualRadius: 122
+            }
+        ]
+    },
+    {
+        name: "Planet",
+        leg_name: "Planet Labs",
+        color: 0x9acd32,
+        shells: [
+            {
+                name: "Planet_SuperDove",
+                percent: 100,
+                altitudeKm: 500,
+                inclinationDeg: 97.4,
+                planes: 1,
+                visualRadius: 122
+            }
+        ]
+    },
+    {
+        name: "Iridium",
+        leg_name: "Iridium",
+        color: 0x4b70d8,
+        shells: [
+            {
+                name: "Iridium",
+                percent: 100,
+                altitudeKm: 777.5,
+                inclinationDeg: 86.4,
+                planes: 6,
+                visualRadius: 132
+            }
+        ]
+    },
+    {
+        name: "Globalstar",
+        leg_name: "Globalstar",
+        color: 0xff7f50,
+        shells: [
+            {
+                name: "Globalstar",
+                percent: 100,
+                altitudeKm: 1414,
+                inclinationDeg: 52,
+                planes: 8,
+                visualRadius: 152
+            }
+        ]
+    },
+    {
+        name: "Orbcomm",
+        leg_name: "Orbcomm",
+        color: 0xc0c0c0,
+        // Orbcomm information taken from https://www.mdpi.com/2673-4591/88/1/39 Table 1
+        // Cross-referenced against Space-Track.org SATCAT
+        shells: [
+            {
+                name: "Orbcomm_OG1_A",
+                percent: 14, // 8/58 
+                altitudeKm: 735,
+                inclinationDeg: 45,
+                planes: 1,
+                visualRadius: 129,
+                // raanOffset: 0
+            },
+            {
+                name: "Orbcomm_OG1_B",
+                percent: 14, // 8/58 
+                altitudeKm: 760,
+                inclinationDeg: 45,
+                planes: 1,
+                visualRadius: 130,
+                // raanOffset: 90
+            },
+            {
+                name: "Orbcomm_OG1_C",
+                percent: 14, // 8/58 
+                altitudeKm: 760,
+                inclinationDeg: 45,
+                planes: 1,
+                visualRadius: 130,
+                // raanOffset: 180
+            },
+            {
+                name: "Orbcomm_OG1_D",
+                percent: 12, // 7/58 
+                altitudeKm: 760,
+                inclinationDeg: 45,
+                planes: 1,
+                visualRadius: 130,
+                // raanOffset: 270
+            },
+            {
+                name: "Orbcomm_OG1_F",
+                percent: 3, // 2/58 
+                altitudeKm: 575,
+                inclinationDeg: 70,
+                planes: 1,
+                visualRadius: 127
+            },
+            {
+                name: "Orbcomm_OG1_F",
+                percent: 3, // 2/58 
+                altitudeKm: 770,
+                inclinationDeg: 110,
+                planes: 1,
+                visualRadius: 130.5
+            },
+            {
+                name: "Orbcomm_OG1_QL",
+                percent: 10, // 6/58
+                altitudeKm: 620,
+                inclinationDeg: 48,
+                planes: 1,
+                visualRadius: 125.5,
+                // raanOffset: 60
+            },
+            {
+                name: "Orbcomm_OG2_K",
+                percent: 10, // 6/58
+                altitudeKm: 700,
+                inclinationDeg: 47,
+                planes: 1,
+                visualRadius: 127,
+                // raanOffset: 60
+            },
+            {
+                name: "Orbcomm_OG2_L",
+                percent: 20, // 11/58
+                altitudeKm: 700,
+                inclinationDeg: 47,
+                planes: 3,
+                visualRadius: 127,
+                // raanOffset: 120
+            }
+        ]
+    },
+    {
+        name: "Strela1M",
+        leg_name: "Strela-1M (Стрела-1М)",
+        color: 0xd16ba5,
+        shells: [
+            {
+                name: "Strela1M",
+                percent: 100,
+                altitudeKm: 1400,
+                inclinationDeg: 74,
+                planes: 18,
+                visualRadius: 151.5
+            }
+        ]
+    },
+    {
+        name: "Strela3",
+        leg_name: "Strela-3 (Стрела-3)",
+        color: 0x7f8c8d,
+        shells: [
+            {
+                name: "Strela3",
+                percent: 100,
+                altitudeKm: 1400,
+                inclinationDeg: 82.6,
+                planes: 18,
+                visualRadius: 151.5
+            }
+        ]
+    }
 ];
 
 // =============================
@@ -601,9 +840,11 @@ function renderConstellationLegend() {
         <div class="legend-title">Orbital Visualization</div>
 
         <div class="legend-caption">
-            Physics-based orbital visualization of major mega-constellations modeled
-            on real orbital planes and inclinations, with satellite sizes, 
-            altitudes, and speeds scaled for visual clarity.
+            Physics-based visualization of major mega-constellations distributed  
+            across their appropriate orbital shells (i.e., altitude, 
+            inclination), assuming uniform RAAN spacing, inferred from real 
+            tracking data.  Satellite sizes, altitudes, and speeds are scaled 
+            for visual clarity.
         </div>
 
         <div class="legend-items">
