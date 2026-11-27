@@ -370,6 +370,81 @@ let configs = [
 ];
 
 // =============================
+// Info Button
+// =============================
+function initializeConstellationInfo() {
+
+    // Create one reusable dialog
+    const dialog = document.createElement("dialog");
+    dialog.id = "constellation-info-dialog";
+
+    dialog.innerHTML = `
+        <div class="info-dialog-header">
+            <h3 id="constellation-info-title"></h3>
+            <button type="button"
+                    class="info-dialog-close"
+                    aria-label="Close constellation information">
+                ×
+            </button>
+        </div>
+        <p id="constellation-info-description"></p>
+    `;
+
+    document.body.appendChild(dialog);
+
+    const title = dialog.querySelector(
+        "#constellation-info-title"
+    );
+
+    const description = dialog.querySelector(
+        "#constellation-info-description"
+    );
+
+    dialog.querySelector(".info-dialog-close")
+        .addEventListener("click", () => dialog.close());
+
+    // Add an info button to each constellation heading
+    document.querySelectorAll(".constellation").forEach(
+        constellation => {
+
+            const heading = constellation.querySelector("h2");
+            if (!heading) return;
+
+            const key = Object.keys(constellationInfo).find(
+                name => constellation.classList.contains(name)
+            );
+
+            if (!key) return;
+
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "constellation-info-btn";
+            button.textContent = "i";
+
+            button.setAttribute(
+                "aria-label",
+                `About ${heading.textContent.trim()}`
+            );
+
+            button.addEventListener("click", () => {
+
+                title.textContent = Array.from(heading.childNodes)
+                    .filter(node => node !== button)
+                    .map(node => node.textContent)
+                    .join("")
+                    .trim();
+                description.textContent = constellationInfo[key];
+
+                dialog.showModal();
+            });
+
+            heading.appendChild(button);
+        }
+    );
+}
+
+// =============================
 // Visualization Controls
 // =============================
 
@@ -616,27 +691,27 @@ document.addEventListener("input", event => {
 
 function initializeColorPalette() {
     const colors = [
-  "#ff4d4d", // Red
-  "#ff7950", // Red-Orange
-  "#ffad42", // Orange
-  "#ffe066", // Yellow
-  "#d9f99d", // Yellow-Green (Lime)
-  "#b8e986", // Light Green
-  "#5cff9d", // Mint Green
-  "#35d6ba", // Teal
-  "#4de0e1", // Cyan
-  "#38bdf8", // Sky Blue
-  "#4da6ff", // Blue
-  "#668cff", // Periwinkle / Indigo-Blue
-  "#7965ff", // Indigo
-  "#a66cff", // Violet
-  "#d66bff", // Purple-Magenta
-  "#ff66b2", // Hot Pink
-  "#f472b6", // Rose Pink
-  "#ff85a1", // Coral Pink
-  "#94a3b8", // Cool Grey
-  "#ffffff"  // Pure White
-];
+        "#ff4d4d", // Red
+        "#ff7950", // Red-Orange
+        "#ffad42", // Orange
+        "#ffe066", // Yellow
+        "#d9f99d", // Yellow-Green (Lime)
+        "#b8e986", // Light Green
+        "#5cff9d", // Mint Green
+        "#35d6ba", // Teal
+        "#4de0e1", // Cyan
+        "#38bdf8", // Sky Blue
+        "#4da6ff", // Blue
+        "#668cff", // Periwinkle / Indigo-Blue
+        "#7965ff", // Indigo
+        "#a66cff", // Violet
+        "#d66bff", // Purple-Magenta
+        "#ff66b2", // Hot Pink
+        "#f472b6", // Rose Pink
+        "#ff85a1", // Coral Pink
+        "#94a3b8", // Cool Grey
+        "#ffffff"  // Pure White
+        ];
 
     const palette = document.createElement("div");
     palette.id = "constellation-palette";
@@ -1053,6 +1128,33 @@ async function loadData() {
 
     buildConstellationOrbits();   // build visualization
     // testConstellationOrbits();
+}
+
+let constellationInfo = {};
+
+async function loadConstellationInfo() {
+    try {
+        const response = await fetch(
+            "./data/constellation_info.json"
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
+
+        constellationInfo = await response.json();
+
+        // Create the info buttons after descriptions load
+        initializeConstellationInfo();
+
+    } catch (error) {
+        console.error(
+            "Failed to load constellation descriptions:",
+            error
+        );
+    }
 }
 
 function formatEasternTime(timestamp) {
@@ -1759,6 +1861,7 @@ function animate() {
 renderConstellationLegend();
 renderOrbitControls();
 initializeColorPalette();
+loadConstellationInfo();
 animate();
 loadData().catch(error => {
     console.error("Error loading satellite data:", error);
