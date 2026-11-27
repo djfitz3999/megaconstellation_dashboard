@@ -412,12 +412,13 @@ function renderOrbitControls() {
             <div class="constellation-control">
                 <div class="constellation-heading">
 
-                    <input type="color"
+                    <button type="button"
                         class="constellation-color-picker"
                         data-constellation-color="${config.name}"
-                        value="${colorHex}"
+                        style="--swatch-color: ${colorHex}"
                         title="Change ${config.leg_name} color"
                         aria-label="Change ${config.leg_name} color">
+                    </button>
 
                     <details class="constellation-details">
                         <summary>
@@ -612,6 +613,134 @@ document.addEventListener("input", event => {
         picker.value
     );
 });
+
+function initializeColorPalette() {
+    const colors = [
+  "#ff4d4d", // Red
+  "#ff7950", // Red-Orange
+  "#ffad42", // Orange
+  "#ffe066", // Yellow
+  "#d9f99d", // Yellow-Green (Lime)
+  "#b8e986", // Light Green
+  "#5cff9d", // Mint Green
+  "#35d6ba", // Teal
+  "#4de0e1", // Cyan
+  "#38bdf8", // Sky Blue
+  "#4da6ff", // Blue
+  "#668cff", // Periwinkle / Indigo-Blue
+  "#7965ff", // Indigo
+  "#a66cff", // Violet
+  "#d66bff", // Purple-Magenta
+  "#ff66b2", // Hot Pink
+  "#f472b6", // Rose Pink
+  "#ff85a1", // Coral Pink
+  "#94a3b8", // Cool Grey
+  "#ffffff"  // Pure White
+];
+
+    const palette = document.createElement("div");
+    palette.id = "constellation-palette";
+    palette.className = "color-palette";
+    palette.setAttribute("role", "group");
+    palette.setAttribute("aria-label", "Choose constellation color");
+    palette.hidden = true;
+
+    colors.forEach(color => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "palette-color";
+        button.style.backgroundColor = color;
+        button.dataset.color = color;
+        button.title = color;
+        button.setAttribute("aria-label", `Choose ${color}`);
+        palette.appendChild(button);
+    });
+
+    document.body.appendChild(palette);
+
+    let activeSwatch = null;
+
+    function closePalette() {
+        if (activeSwatch) {
+            activeSwatch.setAttribute("aria-expanded", "false");
+        }
+        palette.hidden = true;
+        activeSwatch = null;
+    }
+
+    document.addEventListener("click", event => {
+        const swatch = event.target.closest(
+            ".constellation-color-picker"
+        );
+
+        if (swatch) {
+            if (activeSwatch === swatch) {
+                closePalette();
+                return;
+            }
+
+            closePalette();
+            activeSwatch = swatch;
+
+            const rect = swatch.getBoundingClientRect();
+
+            palette.hidden = false;
+            palette.style.left = `${Math.max(
+                8,
+                Math.min(rect.left, window.innerWidth - palette.offsetWidth - 8)
+            )}px`;
+
+            const below = rect.bottom + 8;
+            const above = rect.top - palette.offsetHeight - 8;
+
+            palette.style.top = `${
+                below + palette.offsetHeight <= window.innerHeight
+                    ? below
+                    : Math.max(8, above)
+            }px`;
+
+            swatch.setAttribute("aria-expanded", "true");
+            return;
+        }
+
+        const choice = event.target.closest(".palette-color");
+
+        if (choice && activeSwatch) {
+            const name = activeSwatch.dataset.constellationColor;
+            const color = choice.dataset.color;
+
+            changeConstellationColor(name, color);
+
+            document.querySelectorAll(
+                ".constellation-color-picker"
+            ).forEach(button => {
+                if (button.dataset.constellationColor === name) {
+                    button.style.setProperty("--swatch-color", color);
+                }
+            });
+
+            const previousSwatch = activeSwatch;
+            closePalette();
+            previousSwatch.focus();
+            return;
+        }
+
+        if (!palette.contains(event.target)) {
+            closePalette();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && activeSwatch) {
+            const previousSwatch = activeSwatch;
+            closePalette();
+            previousSwatch.focus();
+        }
+    });
+
+    window.addEventListener("resize", closePalette);
+    window.addEventListener("scroll", closePalette, true);
+}
 
 function setShellVisibility(constellationName, shellName, visible) {
 
@@ -844,14 +973,13 @@ function renderConstellationLegend() {
 
         return `
             <div class="legend-item">
-                <input
-                    type="color"
+                <button type="button"
                     class="constellation-color-picker"
                     data-constellation-color="${config.name}"
-                    value="${colorHex}"
+                    style="--swatch-color: ${colorHex}"
                     title="Change ${config.leg_name} color"
-                    aria-label="Change ${config.leg_name} color"
-                >
+                    aria-label="Change ${config.leg_name} color">
+                </button>
                 <span class="legend-name">${legName}</span>
             </div>
         `;
@@ -1630,6 +1758,7 @@ function animate() {
 
 renderConstellationLegend();
 renderOrbitControls();
+initializeColorPalette();
 animate();
 loadData().catch(error => {
     console.error("Error loading satellite data:", error);

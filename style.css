@@ -485,46 +485,80 @@ a:hover {
     cursor: pointer;
 }
 
-/* Clickable constellation color swatches */
-.constellation-color-picker {
-    -webkit-appearance: none;
-    appearance: none;
+/* =============================
+   CONSTELLATION COLOR PALETTE
+   ============================= */
 
+/* Clickable color swatch */
+.constellation-color-picker {
     width: 18px;
     height: 18px;
     min-width: 18px;
+    flex: 0 0 18px;
 
     padding: 0;
     margin: 0;
+    box-sizing: border-box;
 
+    background: var(--swatch-color);
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 3px;
-
-    background: transparent;
     cursor: pointer;
-    box-sizing: border-box;
-    flex: 0 0 18px;
 }
 
-/* Remove the browser's default inner padding */
-.constellation-color-picker::-webkit-color-swatch-wrapper {
-    padding: 0;
-}
-
-.constellation-color-picker::-webkit-color-swatch {
-    border: none;
-    border-radius: 2px;
-}
-
-.constellation-color-picker::-moz-color-swatch {
-    border: none;
-    border-radius: 2px;
-}
-
-/* Subtle hover feedback */
-.constellation-color-picker:hover {
+.constellation-color-picker:hover,
+.constellation-color-picker:focus-visible {
     border-color: white;
     box-shadow: 0 0 8px rgba(154, 170, 255, 0.7);
+}
+
+/* Popup containing the hexagonal colors */
+.color-palette {
+    position: fixed;
+    z-index: 10000;
+
+    display: grid;
+    grid-template-columns: repeat(5, 28px);
+    gap: 3px;
+    padding: 12px;
+
+    background: #101827;
+    border: 1px solid #52627a;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+
+.color-palette[hidden] {
+    display: none;
+}
+
+/* Individual hexagonal colors */
+.palette-color {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+
+    clip-path: polygon(
+        25% 0%, 75% 0%,
+        100% 50%, 75% 100%,
+        25% 100%, 0% 50%
+    );
+
+    transition: transform 0.12s ease;
+}
+
+.palette-color:hover,
+.palette-color:focus-visible {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}
+
+/* Keep palette buttons from inheriting the global button glow */
+.constellation-color-picker:hover,
+.palette-color:hover {
+    color: inherit;
 }
 
 body {
