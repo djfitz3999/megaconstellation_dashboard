@@ -116,14 +116,31 @@ a:hover {
     height: 850px;
     margin: 35px auto 20px;
     overflow: hidden;
-    /* background: radial-gradient(
+    isolation: isolate;
+}
+
+/* Localized starfield dimming */
+.orbit-visualization::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    background: radial-gradient(
         ellipse at center,
-        rgba(15, 30, 55, 0.45) 0%,
-        rgba(0, 0, 0, 0) 75%
-    ); */
+        rgba(0, 0, 0, 0.95) 0%,
+        rgba(0, 0, 0, 0.90) 35%,
+        rgba(0, 0, 0, 0.85) 55%,
+        rgba(0, 0, 0, 0.25) 75%,
+        rgba(0, 0, 0, 0) 100%
+    );
+
+    z-index: 0;
 }
 
 #earth-canvas {
+    position: relative;
+    z-index: 1;
     display: block;
     width: 100%;
     height: 100%;
