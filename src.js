@@ -213,7 +213,7 @@ let configs = [
                 percent: 100,
                 altitudeKm: 500,
                 inclinationDeg: 97.4,
-                planes: 1,
+                planes: 16,
                 visualRadius: 122
             }
         ]
@@ -229,7 +229,8 @@ let configs = [
                 altitudeKm: 777.5,
                 inclinationDeg: 86.4,
                 planes: 6,
-                visualRadius: 132
+                visualRadius: 132,
+                raanOffset: 0
             }
         ]
     },
@@ -439,7 +440,7 @@ function renderOrbitControls() {
                         <div class="orbital-specs">
                             ${shell.altitudeKm} km ·
                             ${shell.inclinationDeg}° ·
-                            ${shell.planes} planes
+                            ${shell.planes} ${shell.planes === 1 ? "plane" : "planes"}
                         </div>
             `;
         } else {
@@ -459,7 +460,7 @@ function renderOrbitControls() {
                             <div class="orbital-specs">
                                 ${shell.altitudeKm} km ·
                                 ${shell.inclinationDeg}° ·
-                                ${shell.planes} planes
+                                ${shell.planes} ${shell.planes === 1 ? "plane" : "planes"}
                             </div>
                         </details>
 
