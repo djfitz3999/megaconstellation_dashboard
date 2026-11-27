@@ -375,14 +375,13 @@ let configs = [
 
 // Track visibility of every configured orbital shell
 const orbitVisibility = {};
-configs.forEach(config => {
 
+configs.forEach(config => {
     orbitVisibility[config.name] = {};
 
-    config.shells.forEach(shell => {
+    (config.shells || []).forEach(shell => {
         orbitVisibility[config.name][shell.name] = true;
     });
-
 });
 
 function renderOrbitControls() {
@@ -391,8 +390,8 @@ function renderOrbitControls() {
 
     let html = `
         <div class="orbit-control-actions">
-            <button data-orbit-action="show">SELECT ALL</button>
-            <button data-orbit-action="hide">DESELECT ALL</button>
+            <button type="button" data-orbit-action="show">SELECT ALL</button>
+            <button type="button" data-orbit-action="hide">DESELECT ALL</button>
         </div>
     `;
 
@@ -402,31 +401,27 @@ function renderOrbitControls() {
 
         if (shellCount === 0) return;
 
-        const colorHex = `#${config.color.toString(16).padStart(6, "0")}`;
+        const colorHex =
+            `#${config.color.toString(16).padStart(6, "0")}`;
 
-        const enabledCount = shells.filter(shell =>
+        const allEnabled = shells.every(shell =>
             orbitVisibility[config.name]?.[shell.name] !== false
-        ).length;
-
-        const allEnabled = enabledCount === shellCount;
-
-        // All constellations start collapsed.
-        const constellationOpen = "";
+        );
 
         html += `
             <div class="constellation-control">
                 <div class="constellation-heading">
 
-                    <details
-                        class="constellation-details"
-                        ${constellationOpen}
-                    >
+                    <input type="color"
+                        class="constellation-color-picker"
+                        data-constellation-color="${config.name}"
+                        value="${colorHex}"
+                        title="Change ${config.leg_name} color"
+                        aria-label="Change ${config.leg_name} color">
+
+                    <details class="constellation-details">
                         <summary>
                             <span class="constellation-name">
-                                <span
-                                    class="constellation-color"
-                                    style="background:${colorHex}"
-                                ></span>
                                 <span>${config.leg_name}</span>
                                 <span class="shell-count">(${shellCount})</span>
                             </span>
@@ -437,11 +432,11 @@ function renderOrbitControls() {
             const shell = shells[0];
 
             html += `
-                        <div class="orbital-specs">
-                            ${shell.altitudeKm} km ·
-                            ${shell.inclinationDeg}° ·
-                            ${shell.planes} ${shell.planes === 1 ? "plane" : "planes"}
-                        </div>
+                <div class="orbital-specs">
+                    ${shell.altitudeKm} km ·
+                    ${shell.inclinationDeg}° ·
+                    ${shell.planes} ${shell.planes === 1 ? "plane" : "planes"}
+                </div>
             `;
         } else {
             html += `<div class="shell-controls">`;
@@ -469,6 +464,7 @@ function renderOrbitControls() {
                             class="shell-toggle"
                             data-shell-constellation="${config.name}"
                             data-shell-name="${shell.name}"
+                            aria-label="Toggle ${shell.name}"
                             ${shellVisible ? "checked" : ""}
                         >
                     </div>
@@ -478,6 +474,7 @@ function renderOrbitControls() {
             html += `</div>`;
         }
 
+        // Color picker and parent checkbox are OUTSIDE <summary>.
         html += `
                     </details>
 
@@ -485,6 +482,7 @@ function renderOrbitControls() {
                         type="checkbox"
                         class="constellation-toggle"
                         data-constellation-toggle="${config.name}"
+                        aria-label="Toggle ${config.leg_name}"
                         ${allEnabled ? "checked" : ""}
                     >
 
@@ -495,74 +493,56 @@ function renderOrbitControls() {
 
     container.innerHTML = html;
 
-    // Update parent and child checkbox states to match orbitVisibility.
     function syncCheckboxes() {
         configs.forEach(config => {
             const shells = config.shells || [];
+            if (shells.length === 0) return;
 
             const enabledCount = shells.filter(shell =>
                 orbitVisibility[config.name]?.[shell.name] !== false
             ).length;
 
-            const allEnabled = enabledCount === shells.length;
-            const someEnabled =
-                enabledCount > 0 && enabledCount < shells.length;
-
-            // Update the parent constellation checkbox.
-            const parentCheckbox = [
+            const parent = [
                 ...container.querySelectorAll("[data-constellation-toggle]")
             ].find(checkbox =>
                 checkbox.dataset.constellationToggle === config.name
             );
 
-            if (parentCheckbox) {
-                parentCheckbox.checked = allEnabled;
-                parentCheckbox.indeterminate = someEnabled;
+            if (parent) {
+                parent.checked = enabledCount === shells.length;
+                parent.indeterminate =
+                    enabledCount > 0 && enabledCount < shells.length;
             }
 
-            // Update each individual shell checkbox.
-            container.querySelectorAll("[data-shell-constellation]").forEach(
-                checkbox => {
-                    if (checkbox.dataset.shellConstellation !== config.name) {
-                        return;
+            container.querySelectorAll("[data-shell-constellation]")
+                .forEach(checkbox => {
+                    if (
+                        checkbox.dataset.shellConstellation === config.name
+                    ) {
+                        checkbox.checked =
+                            orbitVisibility[config.name]?.[
+                                checkbox.dataset.shellName
+                            ] !== false;
                     }
-
-                    checkbox.checked =
-                        orbitVisibility[config.name]?.[
-                            checkbox.dataset.shellName
-                        ] !== false;
-                }
-            );
+                });
         });
     }
 
-    // Handle individual shell and parent constellation checkboxes.
     container.onchange = event => {
         const checkbox = event.target;
 
-        // Parent constellation checkbox:
-        // Toggle every shell belonging to this constellation.
         if (checkbox.matches("[data-constellation-toggle]")) {
-            const constellationName = checkbox.dataset.constellationToggle;
-            const config = configs.find(c => c.name === constellationName);
+            const name = checkbox.dataset.constellationToggle;
+            const config = configs.find(c => c.name === name);
 
             if (!config) return;
 
             config.shells.forEach(shell => {
-                setShellVisibility(
-                    constellationName,
-                    shell.name,
-                    checkbox.checked
-                );
+                setShellVisibility(name, shell.name, checkbox.checked);
             });
 
             syncCheckboxes();
-            return;
-        }
-
-        // Individual shell checkbox:
-        // Toggle only the selected shell.
-        if (checkbox.matches("[data-shell-constellation]")) {
+        } else if (checkbox.matches("[data-shell-constellation]")) {
             setShellVisibility(
                 checkbox.dataset.shellConstellation,
                 checkbox.dataset.shellName,
@@ -573,7 +553,6 @@ function renderOrbitControls() {
         }
     };
 
-    // Handle SHOW ALL and HIDE ALL.
     container.onclick = event => {
         const button = event.target.closest("[data-orbit-action]");
         if (!button) return;
@@ -581,21 +560,58 @@ function renderOrbitControls() {
         const visible = button.dataset.orbitAction === "show";
 
         configs.forEach(config => {
-            config.shells.forEach(shell => {
-                setShellVisibility(
-                    config.name,
-                    shell.name,
-                    visible
-                );
+            (config.shells || []).forEach(shell => {
+                setShellVisibility(config.name, shell.name, visible);
             });
         });
 
         syncCheckboxes();
     };
 
-    // Ensure the initial checkbox states match the visibility state.
     syncCheckboxes();
 }
+
+function changeConstellationColor(constellationName, hexColor) {
+    const config = configs.find(c => c.name === constellationName);
+    if (!config) return;
+
+    const newColor = parseInt(hexColor.replace("#", ""), 16);
+    config.color = newColor;
+
+    const shellGroups =
+        orbitGroup.userData.shellGroups?.[constellationName];
+
+    if (shellGroups) {
+        Object.values(shellGroups).forEach(shellGroup => {
+            shellGroup.traverse(obj => {
+                if (obj.isPoints && obj.material?.color) {
+                    obj.material.color.setHex(newColor);
+                }
+            });
+        });
+    }
+
+    document.querySelectorAll(".constellation-color-picker")
+        .forEach(picker => {
+            if (
+                picker.dataset.constellationColor === constellationName
+            ) {
+                picker.value = hexColor;
+            }
+        });
+}
+
+// Register once, outside renderOrbitControls()
+document.addEventListener("input", event => {
+    const picker = event.target;
+
+    if (!picker.matches(".constellation-color-picker")) return;
+
+    changeConstellationColor(
+        picker.dataset.constellationColor,
+        picker.value
+    );
+});
 
 function setShellVisibility(constellationName, shellName, visible) {
 
@@ -828,10 +844,14 @@ function renderConstellationLegend() {
 
         return `
             <div class="legend-item">
-                <span
-                    class="legend-color"
-                    style="background-color: ${colorHex}; color: ${colorHex};"
-                ></span>
+                <input
+                    type="color"
+                    class="constellation-color-picker"
+                    data-constellation-color="${config.name}"
+                    value="${colorHex}"
+                    title="Change ${config.leg_name} color"
+                    aria-label="Change ${config.leg_name} color"
+                >
                 <span class="legend-name">${legName}</span>
             </div>
         `;
