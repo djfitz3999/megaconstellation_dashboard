@@ -301,14 +301,6 @@ let configs = [
                 visualRadius: 127
             },
             {
-                name: "Orbcomm_OG1_F",
-                percent: 3, // 2/58 
-                altitudeKm: 770,
-                inclinationDeg: 110,
-                planes: 1,
-                visualRadius: 130.5
-            },
-            {
                 name: "Orbcomm_OG1_QL",
                 percent: 10, // 6/58
                 altitudeKm: 620,
@@ -328,7 +320,7 @@ let configs = [
             },
             {
                 name: "Orbcomm_OG2_L",
-                percent: 20, // 11/58
+                percent: 23, // 13/58
                 altitudeKm: 700,
                 inclinationDeg: 47,
                 planes: 3,
@@ -647,19 +639,19 @@ function renderOrbitControls() {
     syncCheckboxes();
 }
 
-function changeConstellationColor(constellationName, hexColor) {
-    const config = configs.find(c => c.name === constellationName);
+function changeConstellationColor(name, hexColor) {
+    const config = configs.find(c => c.name === name);
     if (!config) return;
 
     const newColor = parseInt(hexColor.replace("#", ""), 16);
     config.color = newColor;
 
     const shellGroups =
-        orbitGroup.userData.shellGroups?.[constellationName];
+        orbitGroup.userData.shellGroups?.[name];
 
     if (shellGroups) {
-        Object.values(shellGroups).forEach(shellGroup => {
-            shellGroup.traverse(obj => {
+        Object.values(shellGroups).forEach(group => {
+            group.traverse(obj => {
                 if (obj.isPoints && obj.material?.color) {
                     obj.material.color.setHex(newColor);
                 }
@@ -669,49 +661,20 @@ function changeConstellationColor(constellationName, hexColor) {
 
     document.querySelectorAll(".constellation-color-picker")
         .forEach(picker => {
-            if (
-                picker.dataset.constellationColor === constellationName
-            ) {
-                picker.value = hexColor;
+            if (picker.dataset.constellationColor === name) {
+                picker.style.setProperty("--swatch-color", hexColor);
             }
         });
 }
 
-// Register once, outside renderOrbitControls()
-document.addEventListener("input", event => {
-    const picker = event.target;
-
-    if (!picker.matches(".constellation-color-picker")) return;
-
-    changeConstellationColor(
-        picker.dataset.constellationColor,
-        picker.value
-    );
-});
-
 function initializeColorPalette() {
     const colors = [
-        "#ff4d4d", // Red
-        "#ff7950", // Red-Orange
-        "#ffad42", // Orange
-        "#ffe066", // Yellow
-        "#d9f99d", // Yellow-Green (Lime)
-        "#b8e986", // Light Green
-        "#5cff9d", // Mint Green
-        "#35d6ba", // Teal
-        "#4de0e1", // Cyan
-        "#38bdf8", // Sky Blue
-        "#4da6ff", // Blue
-        "#668cff", // Periwinkle / Indigo-Blue
-        "#7965ff", // Indigo
-        "#a66cff", // Violet
-        "#d66bff", // Purple-Magenta
-        "#ff66b2", // Hot Pink
-        "#f472b6", // Rose Pink
-        "#ff85a1", // Coral Pink
-        "#94a3b8", // Cool Grey
-        "#ffffff"  // Pure White
-        ];
+        "#ff4d4d", "#ff7950", "#ffad42", "#ffe066",
+        "#d9f99d", "#b8e986", "#5cff9d", "#35d6ba",
+        "#4de0e1", "#38bdf8", "#4da6ff", "#668cff",
+        "#7965ff", "#a66cff", "#d66bff", "#ff66b2",
+        "#f472b6", "#ff85a1", "#94a3b8", "#ffffff"
+    ];
 
     const palette = document.createElement("div");
     palette.id = "constellation-palette";
@@ -734,13 +697,74 @@ function initializeColorPalette() {
     document.body.appendChild(palette);
 
     let activeSwatch = null;
+    let pendingFrame = 0;
 
     function closePalette() {
         if (activeSwatch) {
             activeSwatch.setAttribute("aria-expanded", "false");
         }
+
         palette.hidden = true;
         activeSwatch = null;
+    }
+
+    let viewportTimer = 0;
+
+    function positionPalette() {
+        if (!activeSwatch) return;
+
+        const vv = window.visualViewport;
+
+        // Visible viewport in document coordinates.
+        const left = vv ? vv.pageLeft : window.scrollX;
+        const top = vv ? vv.pageTop : window.scrollY;
+        const width = vv ? vv.width : window.innerWidth;
+        const height = vv ? vv.height : window.innerHeight;
+
+        const padding = 8;
+        const gap = 8;
+
+        palette.style.maxWidth =
+            `${Math.max(0, width - 2 * padding)}px`;
+
+        // Swatch position in document coordinates.
+        const rect = activeSwatch.getBoundingClientRect();
+        const swatchX = rect.left + window.scrollX;
+        const swatchTop = rect.top + window.scrollY;
+        const swatchBottom = rect.bottom + window.scrollY;
+
+        const pw = palette.offsetWidth;
+        const ph = palette.offsetHeight;
+
+        const minX = left + padding;
+        const maxX = Math.max(minX, left + width - pw - padding);
+
+        const minY = top + padding;
+        const maxY = Math.max(minY, top + height - ph - padding);
+
+        const x = Math.max(minX, Math.min(swatchX, maxX));
+
+        const below = swatchBottom + gap;
+        const above = swatchTop - ph - gap;
+
+        const y = Math.max(
+            minY,
+            Math.min(below <= maxY ? below : above, maxY)
+        );
+
+        palette.style.left = `${x}px`;
+        palette.style.top = `${y}px`;
+    }
+
+    function schedulePosition() {
+        if (!activeSwatch) return;
+
+        // Wait for pinch zoom / viewport movement to settle.
+        clearTimeout(viewportTimer);
+
+        viewportTimer = setTimeout(() => {
+            positionPalette();
+        }, 180);
     }
 
     document.addEventListener("click", event => {
@@ -757,24 +781,9 @@ function initializeColorPalette() {
             closePalette();
             activeSwatch = swatch;
 
-            const rect = swatch.getBoundingClientRect();
-
             palette.hidden = false;
-            palette.style.left = `${Math.max(
-                8,
-                Math.min(rect.left, window.innerWidth - palette.offsetWidth - 8)
-            )}px`;
-
-            const below = rect.bottom + 8;
-            const above = rect.top - palette.offsetHeight - 8;
-
-            palette.style.top = `${
-                below + palette.offsetHeight <= window.innerHeight
-                    ? below
-                    : Math.max(8, above)
-            }px`;
-
             swatch.setAttribute("aria-expanded", "true");
+            positionPalette();
             return;
         }
 
@@ -785,18 +794,7 @@ function initializeColorPalette() {
             const color = choice.dataset.color;
 
             changeConstellationColor(name, color);
-
-            document.querySelectorAll(
-                ".constellation-color-picker"
-            ).forEach(button => {
-                if (button.dataset.constellationColor === name) {
-                    button.style.setProperty("--swatch-color", color);
-                }
-            });
-
-            const previousSwatch = activeSwatch;
             closePalette();
-            previousSwatch.focus();
             return;
         }
 
@@ -807,14 +805,25 @@ function initializeColorPalette() {
 
     document.addEventListener("keydown", event => {
         if (event.key === "Escape" && activeSwatch) {
-            const previousSwatch = activeSwatch;
+            const swatch = activeSwatch;
             closePalette();
-            previousSwatch.focus();
+            swatch.focus({ preventScroll: true });
         }
     });
 
-    window.addEventListener("resize", closePalette);
-    window.addEventListener("scroll", closePalette, true);
+    // Reposition instead of dismissing during viewport movement.
+    window.addEventListener("resize", schedulePosition);
+    window.addEventListener("scroll", schedulePosition, true);
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener(
+            "resize", schedulePosition
+        );
+
+        window.visualViewport.addEventListener(
+            "scroll", schedulePosition
+        );
+    }
 }
 
 function setShellVisibility(constellationName, shellName, visible) {
@@ -1770,50 +1779,50 @@ function buildConstellationOrbits() {
 }
 
 
-const testOrbit = new THREE.Group();
-testOrbit.rotation.y = THREE.MathUtils.degToRad(90);
-scene.add(testOrbit);
-let testSatellites = null;
+// const testOrbit = new THREE.Group();
+// testOrbit.rotation.y = THREE.MathUtils.degToRad(90);
+// scene.add(testOrbit);
+// let testSatellites = null;
 
-function testConstellationOrbits() {
+// function testConstellationOrbits() {
 
-    const testInclination = new THREE.Group();
-    testInclination.rotation.x =
-        THREE.MathUtils.degToRad(52);
+//     const testInclination = new THREE.Group();
+//     testInclination.rotation.x =
+//         THREE.MathUtils.degToRad(52);
 
-    const positions = [];
+//     const positions = [];
 
-    for (let s = 0; s < 24; s++) {
+//     for (let s = 0; s < 24; s++) {
 
-        const angle = 2 * Math.PI * s / 24;
+//         const angle = 2 * Math.PI * s / 24;
 
-        positions.push(
-            150 * Math.cos(angle),
-            0,
-            -150 * Math.sin(angle)
-        );
-    }
+//         positions.push(
+//             150 * Math.cos(angle),
+//             0,
+//             -150 * Math.sin(angle)
+//         );
+//     }
 
-    const geometry = new THREE.BufferGeometry();
+//     const geometry = new THREE.BufferGeometry();
 
-    geometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(positions, 3)
-    );
+//     geometry.setAttribute(
+//         "position",
+//         new THREE.Float32BufferAttribute(positions, 3)
+//     );
 
-    const material = new THREE.PointsMaterial({
-        color: 0x4da6ff,
-        size: 5
-    });
+//     const material = new THREE.PointsMaterial({
+//         color: 0x4da6ff,
+//         size: 5
+//     });
 
-    testSatellites = new THREE.Points(
-        geometry,
-        material
-    );
+//     testSatellites = new THREE.Points(
+//         geometry,
+//         material
+//     );
 
-    testInclination.add(testSatellites);
-    testOrbit.add(testInclination);
-}
+//     testInclination.add(testSatellites);
+//     testOrbit.add(testInclination);
+// }
 
 // =============================
 // ANIMATION LOOP

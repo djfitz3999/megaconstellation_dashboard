@@ -43,7 +43,7 @@ h2 {
   margin-top: 25px;    /* Space between the last counter and text */
   margin-bottom: 25px; /* Space between text and button */
   line-height: 1.8;    /* Spacing between the two lines of text */
-  font-size: 14px;
+  font-size: 16px;
   color: #888;
 }
 
@@ -65,7 +65,7 @@ button:hover {
 
 .source {
   margin-top: 40px; /* More separation from the button */
-  font-size: 14px;
+  font-size: 16px;
   color: gray;
 }
 
@@ -81,14 +81,15 @@ a:hover {
 .author {
   margin-top: 15px;
   font-size: 12px;
-  color: #666; /* Subtler gray for the name */
+  color: gray;
   line-height: 1.6;
+  font-size: 16px;
 }
 
 .email-link {
   color: #9aaaff; /* Matches your link theme */
   text-decoration: none;
-  font-size: 11px;
+  font-size: 14px;
   opacity: 0.8;
 }
 
@@ -150,7 +151,7 @@ a:hover {
    VISUALIZATION LEGEND
    ============================= */
 #constellation-legend {
-    width: 70%;
+    width: 80%;
     max-width: 100%;
     margin: 0 auto 15px;
     padding: 0 5px;
@@ -169,7 +170,7 @@ a:hover {
 }
 
 .legend-caption {
-    font-size: 14px;
+    font-size: 16px;
     color: #888;
     text-align: center;
     line-height: 1.4;
@@ -213,7 +214,7 @@ a:hover {
    ============================= */
 
 .orbit-controls {
-    width: 65%;
+    width: 75%;
     max-width: 100%;
     margin: 10px auto 20px;
     box-sizing: border-box;
@@ -514,7 +515,7 @@ a:hover {
 
 /* Popup containing the hexagonal colors */
 .color-palette {
-    position: fixed;
+    position: absolute;
     z-index: 10000;
 
     display: grid;
@@ -561,6 +562,21 @@ a:hover {
     color: inherit;
 }
 
+/* Color swatches: preserve their actual color on hover */
+button.constellation-color-picker,
+button.constellation-color-picker:hover,
+button.constellation-color-picker:active,
+button.constellation-color-picker:focus-visible {
+    background: var(--swatch-color);
+}
+
+/* Highlight the border, not the fill */
+button.constellation-color-picker:hover,
+button.constellation-color-picker:focus-visible {
+    border-color: #ffffff;
+    box-shadow: 0 0 8px rgba(154, 170, 255, 0.7);
+}
+
 /* =============================
    CONSTELLATION INFO BUTTON
    ============================= */
@@ -571,8 +587,8 @@ a:hover {
     align-items: center;
     justify-content: center;
 
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     padding: 0;
     margin-left: 10px;
 
@@ -605,7 +621,7 @@ a:hover {
    ============================= */
 
 #constellation-info-dialog {
-    width: 50%;
+    width: 60%;
     max-width: 100%;
     max-height: 80vh;
     overflow: auto;
@@ -637,7 +653,7 @@ a:hover {
 .info-dialog-header h3 {
     margin: 0;
     color: #9aaaff;
-    font-size: 22px;
+    font-size: 24px;
 }
 
 .info-dialog-close {
@@ -660,7 +676,7 @@ a:hover {
 
 #constellation-info-description {
     margin: 18px 0 0;
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.6;
     white-space: pre-line;
 }
